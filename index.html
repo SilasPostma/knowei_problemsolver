@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knowei Problem Solver</title>
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <img src="assets/images/iconandtextlogo.png" class="logo-img" alt="Knowei" />
+      <nav class="steps" id="steps">
+        <span class="step" data-step="1"><span class="step-num">1</span> Upload</span>
+        <span class="step" data-step="2"><span class="step-num">2</span> Verbanden</span>
+        <span class="step" data-step="3"><span class="step-num">3</span> Advies</span>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Screen 1: Upload -->
+    <section class="screen" id="screen-1">
+      <div class="screen-header">
+        <p class="screen-eyebrow">Stap 1</p>
+        <h1 class="screen-title">Upload je kaart</h1>
+        <p class="screen-desc">Kies een voorbeeldkaart en beschrijf kort de situatie in eigen woorden.</p>
+      </div>
+
+      <div class="upload-grid">
+        <div class="card">
+          <p class="card-label">Kaart</p>
+          <select id="kaart-select" class="kaart-select"></select>
+          <div class="kaart-preview" id="kaart-preview"></div>
+
+          <p class="card-label kaart-photo-label">Foto van de beschrijving</p>
+          <div class="dropzone dropzone-compact" id="dropzone">
+            <div class="dropzone-content" id="dropzone-content">
+              <div class="dropzone-icon">&#8593;</div>
+              <p class="dropzone-title">Sleep foto hierheen</p>
+              <p class="dropzone-sub">of klik om te uploaden</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="card-label">Beschrijving</p>
+          <div class="field">
+            <textarea
+              id="description-input"
+              placeholder="Beschrijf hier kort de situatie, het gesprek of het vraagstuk... (Enter om vast te zetten, Shift+Enter voor een nieuwe regel)"
+            ></textarea>
+            <div class="text-set-display" id="text-set-display" hidden></div>
+            <div class="ai-reading" id="ai-reading" hidden>
+              <p class="ai-reading-label"><span class="ai-reading-dot"></span>AI leest je kaart...</p>
+              <div class="ai-line w-full"></div>
+              <div class="ai-line w-full" style="animation-delay:0.15s"></div>
+              <div class="ai-line w-5-6" style="animation-delay:0.3s"></div>
+              <div class="ai-line w-4-6" style="animation-delay:0.45s"></div>
+            </div>
+            <div class="field-actions">
+              <button class="btn-text" id="edit-description" hidden>Bewerken</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="devtool">
+        <button class="btn-text" id="toggle-keywords">Devtool: toon keyword tabel</button>
+        <div class="keyword-table-wrap" id="keyword-table-wrap">
+          <p class="devtool-note">
+            Tijdelijke devtool &mdash; hiermee vul je zelf de keywords in die de AI later automatisch zal herkennen.
+            Woorden die hier voorkomen worden gemarkeerd in de beschrijving hierboven zodra deze is vastgezet.
+          </p>
+          <table class="keyword-table">
+            <thead>
+              <tr>
+                <th class="col-feiten">feiten<br /><small>(onderwerp, wie, wat, waar, hoeveel)</small></th>
+                <th class="col-ervaren">ervaren / denken / voelen<br /><small>("ik vind, voel, denk")</small></th>
+                <th class="col-doen">doen<br /><small>("ik ... werkwoord")</small></th>
+                <th class="col-effect">effect<br /><small>(conclusie / uitkomst)</small></th>
+              </tr>
+            </thead>
+            <tbody id="keyword-table-body">
+              <tr>
+                <td><input type="text" placeholder="..." value="MT overleggen" /></td>
+                <td><input type="text" placeholder="..." value="vermoeiend" /></td>
+                <td><input type="text" placeholder="..." value="delen meningen" /></td>
+                <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
+              </tr>
+              <tr>
+                <td><input type="text" placeholder="..." value="8 MT leden" /></td>
+                <td><input type="text" placeholder="..." value="tijdrovend" /></td>
+                <td><input type="text" placeholder="..." value="vooruit schuiven" /></td>
+                <td><input type="text" placeholder="..." value="Niemand neemt een besluit." /></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="keyword-table-footer">
+            <button class="btn-text" id="add-row">+ Rij toevoegen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <span></span>
+        <button class="btn btn-primary" data-next="2">Volgende</button>
+      </div>
+    </section>
+
+    <!-- Screen 2: Connections visualization placeholder -->
+    <section class="screen" id="screen-2">
+      <div class="screen-header">
+        <p class="screen-eyebrow">Stap 2</p>
+        <h1 class="screen-title">Verbanden visualisatie</h1>
+        <p class="screen-desc">Hier komt de dynamische bubble/node-diagram met de verbanden tussen je keywords.</p>
+      </div>
+
+      <div class="connections-placeholder">
+        <div class="placeholder-node" style="width:70px;height:70px;background-color:var(--accent-coral);top:15%;left:10%;"></div>
+        <div class="placeholder-node" style="width:50px;height:50px;background-color:var(--accent-blue);top:60%;left:20%;"></div>
+        <div class="placeholder-node" style="width:90px;height:90px;background-color:var(--accent-green);top:30%;left:70%;"></div>
+        <div class="placeholder-node" style="width:60px;height:60px;background-color:var(--accent-tan);top:65%;left:78%;"></div>
+        <p class="connections-placeholder-label">Node-diagram &mdash; wordt in een latere fase interactief</p>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn" data-prev="1">Terug</button>
+        <button class="btn btn-primary" data-next="3">Volgende</button>
+      </div>
+    </section>
+
+    <!-- Screen 3: Advice / toolbox output -->
+    <section class="screen" id="screen-3">
+      <div class="screen-header">
+        <p class="screen-eyebrow">Stap 3</p>
+        <h1 class="screen-title">Advies &amp; toolbox</h1>
+        <p class="screen-desc">Placeholder-indeling voor het gegenereerde advies, bijpassende tool en verwijzing.</p>
+      </div>
+
+      <div class="advice-grid">
+        <div class="card card-full">
+          <p class="card-label">Advies tekst</p>
+          <div class="placeholder-line w-full"></div>
+          <div class="placeholder-line w-full"></div>
+          <div class="placeholder-line w-5-6"></div>
+          <div class="placeholder-line w-4-6"></div>
+        </div>
+
+        <div class="card">
+          <p class="card-label">Toolbox / tool</p>
+          <span class="toolbox-tag">Zwarte Doos tool</span>
+          <div class="placeholder-line w-full" style="margin-top:0.9rem;"></div>
+          <div class="placeholder-line w-3-6"></div>
+        </div>
+
+        <div class="card">
+          <p class="card-label">Url / link</p>
+          <div class="link-placeholder">
+            <span>&#128279;</span>
+            <span>knowei.nl/toolbox/...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn" data-prev="2">Terug</button>
+        <button class="btn btn-primary" id="restart">Opnieuw beginnen</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

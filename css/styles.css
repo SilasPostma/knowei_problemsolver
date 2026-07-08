@@ -1,0 +1,653 @@
+/* Knowei Problem Solver — design tokens borrowed from knowei_leadBuddy / knowei.nl */
+:root {
+  color-scheme: light;
+
+  --color-90: #54585f;
+  --color-70: #9f9d98;
+  --color-50: #d6d2cb;
+  --color-30: #f2ede6;
+  --color-10: #faf7f3;
+
+  /* Accent palette from the "Zwarte Doos" toolbox cards on knowei.nl */
+  --accent-blue: #9b9fba;
+  --accent-tan: #d0b189;
+  --accent-green: #8fc9aa;
+  --accent-coral: #de9889;
+
+  /* Pastel tints of the accents, used for the keyword table columns */
+  --accent-blue-tint: #e3e4ec;
+  --accent-coral-tint: #f7e3df;
+  --accent-tan-tint: #f1e6d8;
+  --accent-green-tint: #dcf0e4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: var(--color-30);
+  color: var(--color-90);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-70);
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 2px solid var(--color-70);
+  background-color: var(--color-30);
+}
+
+.topbar-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.logo-img {
+  height: 1.9rem;
+  width: auto;
+  display: block;
+}
+
+/* ---------- Step indicator ---------- */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.step .step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid var(--color-70);
+  color: var(--color-70);
+  font-size: 0.7rem;
+}
+
+.step.is-active {
+  color: var(--color-90);
+  border-bottom-color: var(--color-90);
+}
+
+.step.is-active .step-num {
+  background-color: var(--color-90);
+  border-color: var(--color-90);
+  color: var(--color-10);
+}
+
+.step.is-done .step-num {
+  background-color: var(--color-70);
+  border-color: var(--color-70);
+  color: var(--color-10);
+}
+
+/* ---------- Main layout ---------- */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.screen {
+  display: none;
+}
+
+.screen.is-active {
+  display: block;
+}
+
+.screen-header {
+  margin-bottom: 2rem;
+}
+
+.screen-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  margin: 0 0 0.4rem;
+}
+
+.screen-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--color-90);
+}
+
+.screen-desc {
+  font-size: 0.9rem;
+  color: var(--color-70);
+  max-width: 60ch;
+  margin: 0;
+}
+
+/* ---------- Cards ---------- */
+.card {
+  border: 1px solid var(--color-50);
+  background-color: var(--color-10);
+  padding: 1.5rem;
+}
+
+.card + .card {
+  margin-top: 1.5rem;
+}
+
+/* Cards placed side-by-side in a grid use `gap` for spacing instead —
+   the sibling rule above is only meant for stacked single-column cards. */
+.upload-grid .card + .card,
+.advice-grid .card + .card {
+  margin-top: 0;
+}
+
+.card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  margin: 0 0 0.75rem;
+}
+
+/* ---------- Upload screen ---------- */
+.upload-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.upload-grid .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (max-width: 720px) {
+  .upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kaart-select {
+  width: 100%;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--color-90);
+}
+
+.kaart-select:focus {
+  outline: none;
+  border-color: var(--color-90);
+  box-shadow: 0 0 0 1px var(--color-90);
+}
+
+.kaart-preview {
+  margin-top: 1rem;
+}
+
+.kaart-preview:empty {
+  margin-top: 0;
+}
+
+.kaart-preview-img {
+  display: block;
+  width: 100%;
+  /* Reference kaart artwork is always exported at 859x633 */
+  aspect-ratio: 859 / 633;
+  object-fit: cover;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+}
+
+.kaart-preview-placeholder {
+  border: 2px dashed var(--color-50);
+  background-color: var(--color-30);
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--color-70);
+}
+
+.kaart-photo-label {
+  margin-top: 1.25rem;
+}
+
+.dropzone {
+  border: 2px dashed var(--color-50);
+  background-color: var(--color-10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.dropzone:hover {
+  border-color: var(--color-70);
+  background-color: var(--color-30);
+}
+
+.dropzone.has-file {
+  border-style: solid;
+  border-color: var(--color-90);
+}
+
+.dropzone-icon {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-70);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-70);
+  font-size: 1rem;
+}
+
+.dropzone-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-90);
+}
+
+.dropzone-sub {
+  font-size: 0.72rem;
+  color: var(--color-70);
+}
+
+.dropzone-preview {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+  border: 1px solid var(--color-50);
+}
+
+.dropzone-compact {
+  min-height: 110px;
+  padding: 0.9rem;
+}
+
+textarea,
+input[type='text'] {
+  width: 100%;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--color-90);
+  resize: vertical;
+}
+
+textarea:focus,
+input[type='text']:focus {
+  outline: none;
+  border-color: var(--color-90);
+  box-shadow: 0 0 0 1px var(--color-90);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.field textarea {
+  flex: 1;
+  min-height: 220px;
+}
+
+.text-set-display {
+  flex: 1;
+  min-height: 220px;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-90);
+  white-space: pre-wrap;
+}
+
+.field-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+/* ---------- AI "reading" simulation ---------- */
+.ai-reading {
+  flex: 1;
+  min-height: 220px;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  padding: 0.9rem;
+}
+
+.ai-reading-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-70);
+  margin: 0 0 0.9rem;
+}
+
+.ai-reading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-green);
+  animation: knowei-pulse 1s ease-in-out infinite;
+}
+
+.ai-line {
+  height: 0.7rem;
+  background-color: var(--color-50);
+  margin-bottom: 0.6rem;
+  animation: knowei-pulse 1.2s ease-in-out infinite;
+}
+
+.ai-line.w-full { width: 100%; }
+.ai-line.w-5-6 { width: 84%; }
+.ai-line.w-4-6 { width: 68%; }
+
+@keyframes knowei-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.hl {
+  padding: 0.05em 0.2em;
+  font-weight: 600;
+}
+
+.hl-feiten {
+  background-color: var(--accent-blue-tint);
+  box-shadow: inset 0 -2px 0 var(--accent-blue);
+}
+.hl-ervaren {
+  background-color: var(--accent-coral-tint);
+  box-shadow: inset 0 -2px 0 var(--accent-coral);
+}
+.hl-doen {
+  background-color: var(--accent-tan-tint);
+  box-shadow: inset 0 -2px 0 var(--accent-tan);
+}
+.hl-effect {
+  background-color: var(--accent-green-tint);
+  box-shadow: inset 0 -2px 0 var(--accent-green);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-70);
+  background-color: transparent;
+  color: var(--color-90);
+  padding: 0.6rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn:hover {
+  background-color: var(--color-30);
+}
+
+.btn-primary {
+  background-color: var(--color-70);
+  border-color: var(--color-70);
+  color: var(--color-10);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-90);
+  border-color: var(--color-90);
+}
+
+.btn-text {
+  border: none;
+  background: none;
+  color: var(--color-70);
+  text-decoration: underline;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
+  padding: 0.25rem 0;
+}
+
+.btn-text:hover {
+  color: var(--color-90);
+  background: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+/* ---------- Devtool: manual keyword table ---------- */
+.devtool {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--color-50);
+}
+
+.devtool-note {
+  font-size: 0.78rem;
+  color: var(--color-70);
+  max-width: 70ch;
+  margin: 0 0 1rem;
+}
+
+.keyword-table-wrap {
+  display: none;
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.keyword-table-wrap.is-visible {
+  display: block;
+}
+
+table.keyword-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.keyword-table th {
+  text-align: left;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-90);
+  border: 1px solid var(--color-50);
+}
+
+.keyword-table th.col-feiten {
+  background-color: var(--accent-blue-tint);
+  border-top: 3px solid var(--accent-blue);
+}
+.keyword-table th.col-ervaren {
+  background-color: var(--accent-coral-tint);
+  border-top: 3px solid var(--accent-coral);
+}
+.keyword-table th.col-doen {
+  background-color: var(--accent-tan-tint);
+  border-top: 3px solid var(--accent-tan);
+}
+.keyword-table th.col-effect {
+  background-color: var(--accent-green-tint);
+  border-top: 3px solid var(--accent-green);
+}
+
+.keyword-table td {
+  border: 1px solid var(--color-50);
+  padding: 0;
+  vertical-align: top;
+  background-color: #fff;
+}
+
+.keyword-table td input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--color-90);
+  font-family: inherit;
+}
+
+.keyword-table td input:focus {
+  outline: none;
+  background-color: var(--color-10);
+}
+
+.keyword-table-footer {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 0.75rem;
+}
+
+/* ---------- Connections placeholder ---------- */
+.connections-placeholder {
+  border: 2px dashed var(--color-50);
+  background-color: var(--color-10);
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.connections-placeholder-label {
+  font-size: 0.85rem;
+  color: var(--color-70);
+  text-align: center;
+  z-index: 1;
+}
+
+.placeholder-node {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+/* ---------- Advice/toolbox screen ---------- */
+.advice-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .advice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.advice-grid .card-full {
+  grid-column: 1 / -1;
+}
+
+.placeholder-line {
+  height: 0.7rem;
+  background-color: var(--color-50);
+  margin-bottom: 0.6rem;
+}
+
+.placeholder-line.w-full { width: 100%; }
+.placeholder-line.w-5-6 { width: 84%; }
+.placeholder-line.w-4-6 { width: 68%; }
+.placeholder-line.w-3-6 { width: 52%; }
+
+.toolbox-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--accent-tan);
+}
+
+.link-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--color-70);
+}
