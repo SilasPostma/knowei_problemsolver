@@ -53,7 +53,7 @@
             ></textarea>
             <div class="text-set-display" id="text-set-display" hidden></div>
             <div class="ai-reading" id="ai-reading" hidden>
-              <p class="ai-reading-label"><span class="ai-reading-dot"></span>AI leest je kaart...</p>
+              <p class="ai-reading-label"><span class="ai-reading-dot"></span>Beschrijving genereren...</p>
               <div class="ai-line w-full"></div>
               <div class="ai-line w-full" style="animation-delay:0.15s"></div>
               <div class="ai-line w-5-6" style="animation-delay:0.3s"></div>
@@ -70,8 +70,9 @@
         <button class="btn-text" id="toggle-keywords">Devtool: toon keyword tabel</button>
         <div class="keyword-table-wrap" id="keyword-table-wrap">
           <p class="devtool-note">
-            Tijdelijke devtool &mdash; hiermee vul je zelf de keywords in die de AI later automatisch zal herkennen.
-            Woorden die hier voorkomen worden gemarkeerd in de beschrijving hierboven zodra deze is vastgezet.
+            Tijdelijke devtool &mdash; hiermee vul je zelf de keywords in die later automatisch herkend zullen
+            worden. Woorden die hier voorkomen worden gemarkeerd in de beschrijving hierboven zodra deze is
+            vastgezet.
           </p>
           <table class="keyword-table">
             <thead>
@@ -93,7 +94,7 @@
                 <td><input type="text" placeholder="..." value="8 MT leden" /></td>
                 <td><input type="text" placeholder="..." value="tijdrovend" /></td>
                 <td><input type="text" placeholder="..." value="vooruit schuiven" /></td>
-                <td><input type="text" placeholder="..." value="Niemand neemt een besluit." /></td>
+                <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
               </tr>
             </tbody>
           </table>
@@ -109,30 +110,41 @@
       </div>
     </section>
 
-    <!-- Screen 2: Connections visualization placeholder -->
+    <!-- Screen 2: Connections visualization -->
     <section class="screen" id="screen-2">
       <div class="screen-header">
         <p class="screen-eyebrow">Stap 2</p>
         <h1 class="screen-title">Verbanden visualisatie</h1>
-        <p class="screen-desc">Hier komt de dynamische bubble/node-diagram met de verbanden tussen je keywords.</p>
+        <p class="screen-desc">
+          De keywords en het effect uit stap 1 worden gekoppeld aan de L&amp;D concepten. Klik op een bubbel voor
+          meer uitleg.
+        </p>
       </div>
 
-      <div class="connections-placeholder">
-        <div class="placeholder-node" style="width:70px;height:70px;background-color:var(--accent-coral);top:15%;left:10%;"></div>
-        <div class="placeholder-node" style="width:50px;height:50px;background-color:var(--accent-blue);top:60%;left:20%;"></div>
-        <div class="placeholder-node" style="width:90px;height:90px;background-color:var(--accent-green);top:30%;left:70%;"></div>
-        <div class="placeholder-node" style="width:60px;height:60px;background-color:var(--accent-tan);top:65%;left:78%;"></div>
-        <p class="connections-placeholder-label">Node-diagram &mdash; wordt in een latere fase interactief</p>
+      <div class="connections-canvas-wrap" id="connections-canvas-wrap">
+        <div class="connections-loading" id="connections-loading">
+          <p class="ai-reading-label"><span class="ai-reading-dot"></span>Jouw verbandenrapport bouwen...</p>
+        </div>
+        <div class="connections-canvas" id="connections-canvas" hidden></div>
+        <p class="connections-empty" id="connections-empty" hidden></p>
+      </div>
+
+      <div class="concept-detail" id="concept-detail" hidden>
+        <button class="concept-detail-close" id="concept-detail-close" aria-label="Sluiten">&times;</button>
+        <p class="concept-detail-eyebrow" id="concept-detail-eyebrow"></p>
+        <h3 class="concept-detail-title" id="concept-detail-title"></h3>
+        <p class="concept-detail-body" id="concept-detail-body"></p>
       </div>
 
       <div class="devtool">
-        <p class="devtool-note">
-          Tijdelijke debug-weergave (Stage 2) &mdash; toont de L&amp;D concepten die worden gevonden door de
-          "ervaren"- en "doen"-keywords en het "effect" uit de devtool-tabel op stap 1 te koppelen aan de
-          Keyword_Effect en LD_Concept Google Sheets.
-        </p>
-        <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
-        <div class="keyword-table-wrap is-visible">
+        <button class="btn-text" id="toggle-concepts-table">Devtool: toon gekoppelde data-tabel</button>
+        <div class="keyword-table-wrap" id="concepts-table-wrap">
+          <p class="devtool-note">
+            Tijdelijke debug-weergave &mdash; toont de L&amp;D concepten die worden gevonden door de "ervaren"- en
+            "doen"-keywords en het "effect" uit de devtool-tabel op stap 1 te koppelen aan de Keyword_Effect en
+            LD_Concept Google Sheets.
+          </p>
+          <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
           <table class="keyword-table concepts-table">
             <thead>
               <tr>
@@ -163,33 +175,28 @@
       <div class="screen-header">
         <p class="screen-eyebrow">Stap 3</p>
         <h1 class="screen-title">Advies &amp; toolbox</h1>
-        <p class="screen-desc">Placeholder-indeling voor het gegenereerde advies, bijpassende tool en verwijzing.</p>
+        <p class="screen-desc">Op basis van de gevonden verbanden stellen we de volgende aanpak en toolbox voor.</p>
       </div>
 
-      <div class="advice-grid">
-        <div class="card card-full">
-          <p class="card-label">Advies tekst</p>
-          <div class="placeholder-line w-full"></div>
-          <div class="placeholder-line w-full"></div>
-          <div class="placeholder-line w-5-6"></div>
-          <div class="placeholder-line w-4-6"></div>
-        </div>
-
-        <div class="card">
-          <p class="card-label">Toolbox / tool</p>
-          <span class="toolbox-tag">Zwarte Doos tool</span>
-          <div class="placeholder-line w-full" style="margin-top:0.9rem;"></div>
-          <div class="placeholder-line w-3-6"></div>
-        </div>
-
-        <div class="card">
-          <p class="card-label">Url / link</p>
-          <div class="link-placeholder">
-            <span>&#128279;</span>
-            <span>knowei.nl/toolbox/...</span>
-          </div>
-        </div>
+      <div class="complexity-banner" id="complexity-banner" hidden>
+        <p class="complexity-eyebrow">Situatie-inschatting</p>
+        <p class="complexity-value" id="complexity-value">&mdash;</p>
+        <p class="complexity-note" id="complexity-note"></p>
       </div>
+
+      <div class="advice-loading" id="advice-loading">
+        <p class="ai-reading-label"><span class="ai-reading-dot"></span>Advies samenstellen...</p>
+      </div>
+
+      <p class="advice-empty" id="advice-empty" hidden></p>
+
+      <div class="advice-list" id="advice-list" hidden></div>
+
+      <p class="devtool-note complexity-footnote">
+        Devtool-notitie &mdash; score = koppelingen + (gedeelde concepten &times; 2). Gedeelde concepten wegen
+        zwaarder: onderlinge afhankelijkheid bepaalt complexiteit, niet alleen het aantal koppelingen. Drempels:
+        0&ndash;4 eenvoudig, 5&ndash;9 ingewikkeld, 10&ndash;15 complex, 16+ chaotisch.
+      </p>
 
       <div class="actions-row">
         <button class="btn" data-prev="2">Terug</button>

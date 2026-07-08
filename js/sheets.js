@@ -37,15 +37,45 @@ window.KnoweiSheets = (function () {
   // The Keyword_Effect sheet's first column header is blank (it's the row's
   // keyword), so opensheet keys it as "". Read positionally instead of by
   // name so this keeps working if the client ever labels that header cell.
+  // The "description" column (shown when a hub bubble is clicked) is pulled
+  // out separately — everything else is treated as an effect column.
   function normalizeKeywordEffectRow(raw) {
     const keys = Object.keys(raw);
     const keywordKey = keys[0];
     const keyword = (raw[keywordKey] || '').trim();
+    const description = (raw.description || '').trim();
     const effects = {};
     keys.slice(1).forEach((key) => {
+      if (key.trim().toLowerCase() === 'description') return;
       effects[key.trim()] = (raw[key] || '').trim();
     });
-    return { keyword, effects };
+    return { keyword, description, effects };
+  }
+
+  // The client's sheet can end up with more than one row for the same
+  // keyword (e.g. pasted in while editing). Merge them instead of silently
+  // keeping only the first match — union the codes per effect column so no
+  // links get dropped.
+  function mergeKeywordEffectRows(rows) {
+    const merged = new Map(); // keyword (lowercase) -> { keyword, description, effects }
+    rows.forEach((row) => {
+      const key = row.keyword.toLowerCase();
+      if (!key) return;
+      if (!merged.has(key)) {
+        merged.set(key, { keyword: row.keyword, description: row.description, effects: { ...row.effects } });
+        return;
+      }
+      const existing = merged.get(key);
+      if (!existing.description && row.description) existing.description = row.description;
+      Object.keys(row.effects).forEach((effectName) => {
+        const value = row.effects[effectName];
+        if (!value) return;
+        existing.effects[effectName] = existing.effects[effectName]
+          ? `${existing.effects[effectName]},${value}`
+          : value;
+      });
+    });
+    return Array.from(merged.values());
   }
 
   function normalizeConcept(raw) {
@@ -58,7 +88,7 @@ window.KnoweiSheets = (function () {
 
   async function fetchKeywordEffectRows() {
     const raw = await fetchTab(TAB_KEYWORD_EFFECT);
-    return raw.map(normalizeKeywordEffectRow);
+    return mergeKeywordEffectRows(raw.map(normalizeKeywordEffectRow));
   }
 
   async function fetchConcepts() {
@@ -141,6 +171,53 @@ window.KnoweiSheets = (function () {
     return result;
   }
 
+  // Groups resolved concepts by the matched Keyword_Effect keyword ("hub"),
+  // for the connections diagram: one hub bubble per matched keyword, fanning
+  // out to its concept leaves (zero, one, or many — never assume 1:1).
+  function resolveHubs(devtoolRows, keywordEffectRows, conceptMap) {
+    const hubs = new Map(); // keyword (lowercase) -> { keyword, description, concepts, seenIds }
+
+    devtoolRows.forEach((devtoolRow) => {
+      [devtoolRow.ervaren, devtoolRow.doen]
+        .map((v) => (v || '').trim())
+        .filter(Boolean)
+        .forEach((keyword) => {
+          const row = findKeywordEffectRow(keywordEffectRows, keyword);
+          if (!row) return;
+          const concepts = resolveCodesToConcepts(getEffectCodes(row, devtoolRow.effect), conceptMap);
+          if (!concepts.length) return;
+
+          const key = row.keyword.toLowerCase();
+          if (!hubs.has(key)) {
+            hubs.set(key, { keyword: row.keyword, description: row.description, concepts: [], seenIds: new Set() });
+          }
+          const hub = hubs.get(key);
+          concepts.forEach((concept) => {
+            if (hub.seenIds.has(concept.id)) return;
+            hub.seenIds.add(concept.id);
+            hub.concepts.push(concept);
+          });
+        });
+    });
+
+    return Array.from(hubs.values()).map(({ keyword, description, concepts }) => ({ keyword, description, concepts }));
+  }
+
+  // Display helpers — capitalize the first letter for presentation (sheet
+  // data is often all-lowercase) and truncate long labels so they fit inside
+  // the small round bubbles in the diagram.
+  function capitalize(str) {
+    const trimmed = (str || '').trim();
+    if (!trimmed) return trimmed;
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  }
+
+  function truncate(str, maxLen) {
+    const trimmed = (str || '').trim();
+    if (trimmed.length <= maxLen) return trimmed;
+    return `${trimmed.slice(0, maxLen - 1).trimEnd()}…`;
+  }
+
   let cache = null;
   function loadAll() {
     if (cache) return cache;
@@ -167,6 +244,9 @@ window.KnoweiSheets = (function () {
     resolveCodesToConcepts,
     resolveConceptsForKeywordRow,
     resolveAllConcepts,
+    resolveHubs,
+    capitalize,
+    truncate,
     loadAll,
   };
 })();

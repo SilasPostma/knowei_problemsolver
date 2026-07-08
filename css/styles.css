@@ -178,8 +178,7 @@ main {
 
 /* Cards placed side-by-side in a grid use `gap` for spacing instead —
    the sibling rule above is only meant for stacked single-column cards. */
-.upload-grid .card + .card,
-.advice-grid .card + .card {
+.upload-grid .card + .card {
   margin-top: 0;
 }
 
@@ -597,59 +596,189 @@ table.keyword-table {
   white-space: pre-wrap;
 }
 
-/* ---------- Connections placeholder ---------- */
-.connections-placeholder {
+/* ---------- Connections diagram (Stage 3) ---------- */
+.connections-canvas-wrap {
+  position: relative;
   border: 2px dashed var(--color-50);
   background-color: var(--color-10);
-  min-height: 420px;
+  min-height: 560px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.connections-canvas-wrap.is-ready {
+  border-style: solid;
+}
+
+/* `display: flex` must stay scoped to `:not([hidden])` — an unconditional
+   `display` here would override the `[hidden]` UA rule (author styles beat
+   UA styles regardless of specificity), leaving the text visible/behind the
+   diagram even while the `hidden` attribute is set. */
+.connections-loading {
+  position: absolute;
+  inset: 0;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.connections-loading:not([hidden]) {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
 }
 
-.connections-placeholder-label {
+.connections-loading .ai-reading-label {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.connections-empty {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  padding: 2rem;
   font-size: 0.85rem;
   color: var(--color-70);
-  text-align: center;
-  z-index: 1;
+  max-width: 42ch;
+  margin: 0 auto;
 }
 
-.placeholder-node {
+.connections-empty:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connections-canvas {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.connections-canvas svg {
   position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.connections-canvas svg line {
+  stroke: var(--color-70);
+  stroke-width: 1.5;
+}
+
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
   border-radius: 50%;
-  opacity: 0.5;
+  transform: translate(-50%, -50%);
+  scale: 1;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.75rem;
+  transition: scale 0.15s ease, box-shadow 0.15s ease;
+  animation: node-in 0.35s ease-out;
 }
 
-/* ---------- Advice/toolbox screen ---------- */
-.advice-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1.5rem;
+.node:hover {
+  scale: 1.08;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  z-index: 5;
 }
 
-@media (max-width: 720px) {
-  .advice-grid {
-    grid-template-columns: 1fr;
+.node-hub {
+  background-color: var(--accent-coral-tint);
+  color: var(--color-90);
+  border: 2px solid var(--accent-coral);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+
+.node-leaf {
+  background-color: var(--accent-coral);
+  color: #fff;
+  z-index: 3;
+}
+
+.node.is-selected {
+  box-shadow: 0 0 0 4px var(--color-10), 0 0 0 6px var(--color-90);
+}
+
+@keyframes node-in {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
   }
 }
 
-.advice-grid .card-full {
-  grid-column: 1 / -1;
+/* ---------- Concept detail panel ---------- */
+.concept-detail {
+  position: relative;
+  margin-top: 1.5rem;
+  border: 1px solid var(--color-50);
+  background-color: var(--color-10);
+  padding: 1.5rem;
+  padding-right: 3rem;
 }
 
-.placeholder-line {
-  height: 0.7rem;
-  background-color: var(--color-50);
-  margin-bottom: 0.6rem;
+.concept-detail-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--color-70);
+  background: transparent;
+  color: var(--color-90);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
-.placeholder-line.w-full { width: 100%; }
-.placeholder-line.w-5-6 { width: 84%; }
-.placeholder-line.w-4-6 { width: 68%; }
-.placeholder-line.w-3-6 { width: 52%; }
+.concept-detail-close:hover {
+  background-color: var(--color-90);
+  color: var(--color-10);
+}
 
+.concept-detail-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  margin: 0 0 0.35rem;
+}
+
+.concept-detail-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 0 0 0.6rem;
+}
+
+.concept-detail-body {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-90);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* ---------- Advice/toolbox screen ---------- */
 .toolbox-tag {
   display: inline-flex;
   align-items: center;
@@ -660,13 +789,183 @@ table.keyword-table {
   background-color: var(--accent-tan);
 }
 
-.link-placeholder {
+.complexity-banner {
+  border: 1px solid var(--color-50);
+  border-left: 6px solid var(--color-70);
+  background-color: var(--color-10);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.complexity-banner.complexity-eenvoudig {
+  border-left-color: var(--accent-green);
+}
+.complexity-banner.complexity-ingewikkeld {
+  border-left-color: var(--accent-blue);
+}
+.complexity-banner.complexity-complex {
+  border-left-color: var(--accent-tan);
+}
+.complexity-banner.complexity-chaotisch {
+  border-left-color: var(--accent-coral);
+}
+
+.complexity-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  margin: 0 0 0.3rem;
+}
+
+.complexity-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 0 0 0.4rem;
+}
+
+.complexity-note {
+  font-size: 0.85rem;
+  color: var(--color-70);
+  margin: 0;
+}
+
+.advice-loading {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.advice-loading .ai-reading-label {
+  justify-content: center;
+  margin: 0;
+}
+
+.advice-empty {
+  border: 2px dashed var(--color-50);
+  background-color: var(--color-10);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-70);
+}
+
+.advice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.advice-card {
+  border: 1px solid var(--color-50);
+  border-left: 4px solid var(--accent-coral);
+  background-color: var(--color-10);
+  padding: 1.75rem;
+}
+
+.advice-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.advice-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-90);
+  background-color: var(--accent-blue-tint);
+  border: 1px solid var(--accent-blue);
+}
+
+.advice-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 0 0 0.4rem;
+}
+
+/* One box card can list several concepts — condensed to a single line each
+   (keyword tag(s) + name) rather than a full block per concept, so the list
+   stays scannable. Advice is shown once for the whole box, not per concept. */
+.advice-concepts {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
+}
+
+.advice-concept-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--color-50);
+}
+
+.advice-concept-row:first-child {
+  padding-top: 0.75rem;
+}
+
+.advice-concept-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0.25rem;
+}
+
+.advice-concept-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-90);
+}
+
+.advice-label {
+  margin-top: 0;
+}
+
+.advice-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 0.5rem;
+}
+
+.advice-mini-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  color: var(--color-90);
+  background-color: var(--color-10);
+  border: 1px solid var(--color-50);
+}
+
+.advice-mini-table td {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-90);
   border: 1px solid var(--color-50);
   background-color: #fff;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.82rem;
-  color: var(--color-70);
+}
+
+.advice-card-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-90);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.advice-cta {
+  margin-top: 1.25rem;
+  text-decoration: none;
+}
+
+.complexity-footnote {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--color-50);
 }
