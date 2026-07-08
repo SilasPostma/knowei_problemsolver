@@ -41,21 +41,21 @@
       id: 'knoop',
       label: 'We praten eindeloos, Niemand hakt de knoop door.',
       image: 'assets/images/knoop_doorhakken.png',
-    },
-    {
-      id: 'mt',
-      label: 'We vinden MT overleggen vermoeiend en tijdrovend.',
-      image: null,
-    },
-    {
-      id: 'eiland',
-      label: 'Ieder werkt op zijn eigen eiland, niemand deelt informatie.',
-      image: null,
-    },
+    }
   ];
 
   const kaartSelect = document.getElementById('kaart-select');
   const kaartPreview = document.getElementById('kaart-preview');
+  const uploadNextBtn = document.getElementById('upload-next');
+
+  // Gate stap 1's "Volgende" on all three inputs being done: a kaart chosen,
+  // a photo uploaded, and the resulting description text generated (not
+  // mid-edit). Safe to call any time after the elements above and `dropzone`
+  // /`isTextSet` (declared further down) exist — every caller fires from an
+  // event handler, i.e. after the whole script has finished its first pass.
+  function updateUploadNextState() {
+    uploadNextBtn.disabled = !(kaartSelect.value && dropzone.classList.contains('has-file') && isTextSet());
+  }
 
   KAART_OPTIONS.forEach((opt) => {
     const el = document.createElement('option');
@@ -83,7 +83,10 @@
     }
   }
 
-  kaartSelect.addEventListener('change', renderKaartPreview);
+  kaartSelect.addEventListener('change', () => {
+    renderKaartPreview();
+    updateUploadNextState();
+  });
   renderKaartPreview();
 
   // ---------- Devtool: hidden keyword table ----------
@@ -487,6 +490,25 @@
     document.querySelectorAll('.node.is-selected').forEach((n) => n.classList.remove('is-selected'));
   });
 
+  // ---------- Complexity picker: human judgement replaces the auto-score ----------
+  // The user picks the image that best matches the connections pattern they
+  // just saw; that pick (not a formula) drives the complexity shown on stap 3.
+  const complexityOptions = document.querySelectorAll('.complexity-option');
+  const verbandenNextBtn = document.getElementById('verbanden-next');
+  let selectedComplexity = null;
+
+  complexityOptions.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      selectedComplexity = btn.dataset.complexity;
+      complexityOptions.forEach((b) => {
+        const isSelected = b === btn;
+        b.classList.toggle('is-selected', isSelected);
+        b.setAttribute('aria-checked', String(isSelected));
+      });
+      verbandenNextBtn.disabled = false;
+    });
+  });
+
   async function renderConnectionsDiagram() {
     conceptDetail.hidden = true;
     connectionsWrap.classList.remove('is-ready');
@@ -530,39 +552,20 @@
   const adviceEmpty = document.getElementById('advice-empty');
   const adviceList = document.getElementById('advice-list');
 
-  const TOOLBOX_FIELD_LABELS = {
-    inhouse_klant: 'Inhouse-training',
-    futures: 'Toekomstmodule',
-    knowei_modules: 'Knowei-module',
+  // knowei_modules is intentionally left out — only these two feed the
+  // "Kijk bijvoorbeeld naar" subline under each concept.
+  const ALTERNATIVE_FIELDS = ['inhouse_klant', 'futures'];
+  const KNOWEI_URL = 'https://knowei.nl';
+
+  // Complexity labels for the four pictures on stap 2 — the modifier values
+  // match `data-complexity` on `.complexity-option` and the
+  // `.complexity-banner.complexity-*` accent classes below.
+  const COMPLEXITY_LABELS = {
+    eenvoudig: 'Eenvoudig',
+    ingewikkeld: 'Ingewikkeld',
+    complex: 'Complex',
+    chaotisch: 'Chaotisch',
   };
-
-  // Complexity classification — devtool note (also shown, shorter, in the UI
-  // footnote): score = koppelingen + (gedeelde concepten × 2). Shared
-  // concepts are weighted extra because cross-cutting dependency between
-  // parts of the problem — not just the raw link count — is what actually
-  // separates Complex/Chaotic from Simple/Complicated (Cynefin framework).
-  // Thresholds (score): 0–4 eenvoudig, 5–9 ingewikkeld, 10–15 complex, 16+
-  // chaotisch.
-  const COMPLEXITY_LEVELS = [
-    { max: 4, label: 'Eenvoudig', modifier: 'eenvoudig' },
-    { max: 9, label: 'Ingewikkeld', modifier: 'ingewikkeld' },
-    { max: 15, label: 'Complex', modifier: 'complex' },
-    { max: Infinity, label: 'Chaotisch', modifier: 'chaotisch' },
-  ];
-
-  function computeComplexity(hubs) {
-    const totalConnections = hubs.reduce((sum, hub) => sum + hub.concepts.length, 0);
-    const conceptHubCount = new Map();
-    hubs.forEach((hub) => {
-      hub.concepts.forEach((concept) => {
-        conceptHubCount.set(concept.id, (conceptHubCount.get(concept.id) || 0) + 1);
-      });
-    });
-    const sharedCount = Array.from(conceptHubCount.values()).filter((n) => n > 1).length;
-    const score = totalConnections + sharedCount * 2;
-    const level = COMPLEXITY_LEVELS.find((l) => score <= l.max);
-    return { score, totalConnections, sharedCount, label: level.label, modifier: level.modifier };
-  }
 
   // Same hub→concept data as the diagram, reshaped so each unique concept
   // carries every keyword that led to it (a shared concept lists more than
@@ -594,110 +597,122 @@
     return Array.from(boxes.values());
   }
 
-  function buildBoxCard(box) {
-    const card = document.createElement('article');
-    card.className = 'advice-card';
+  // One row per concept: name + its keyword tag(s) on the same line
+  // (tags right-aligned), plus an optional subline linking out to the two
+  // toolbox alternatives (inhouse-training / toekomstmodule) that mention
+  // it — knowei_modules is left out on purpose, that column isn't shown here.
+  function buildConceptItem({ concept, keywords }) {
+    const item = document.createElement('div');
+    item.className = 'advice-concept-item';
 
-    const label = document.createElement('p');
-    label.className = 'card-label';
-    label.textContent = 'Toolbox';
-    card.appendChild(label);
+    const line = document.createElement('div');
+    line.className = 'advice-concept-line';
 
-    const title = document.createElement('h3');
-    title.className = 'advice-card-title';
-    title.textContent = box.boxName ? window.KnoweiSheets.capitalize(box.boxName) : 'Overig advies';
-    card.appendChild(title);
+    const name = document.createElement('span');
+    name.className = 'advice-concept-name';
+    name.textContent = window.KnoweiSheets.capitalize(concept.name || concept.id);
+    line.appendChild(name);
 
-    // Condensed: one line per concept (keyword tag(s) + name only, no
-    // description) so a box with several concepts still reads as a quick
-    // list rather than a wall of repeated blocks.
-    const conceptsWrap = document.createElement('div');
-    conceptsWrap.className = 'advice-concepts';
-    box.entries.forEach(({ concept, keywords }) => {
-      const row = document.createElement('div');
-      row.className = 'advice-concept-row';
-
-      keywords.forEach((keyword) => {
-        const tag = document.createElement('span');
-        tag.className = 'advice-tag';
-        tag.textContent = window.KnoweiSheets.capitalize(keyword);
-        row.appendChild(tag);
-      });
-
-      const name = document.createElement('span');
-      name.className = 'advice-concept-name';
-      name.textContent = window.KnoweiSheets.capitalize(concept.name || concept.id);
-      row.appendChild(name);
-
-      conceptsWrap.appendChild(row);
+    const tags = document.createElement('span');
+    tags.className = 'advice-concept-tags';
+    keywords.forEach((keyword) => {
+      const tag = document.createElement('span');
+      tag.className = 'advice-tag';
+      tag.textContent = window.KnoweiSheets.capitalize(keyword);
+      tags.appendChild(tag);
     });
-    card.appendChild(conceptsWrap);
+    line.appendChild(tags);
 
-    // Only the first concept's advice is shown — repeating near-identical
-    // advice per concept made the card feel cluttered. One clear
-    // recommendation per box reads much better.
-    const firstConcept = box.entries[0].concept;
-    const adviceLabel = document.createElement('p');
-    adviceLabel.className = 'card-label advice-label';
-    adviceLabel.textContent = 'Advies';
-    card.appendChild(adviceLabel);
+    item.appendChild(line);
 
-    const adviceText = document.createElement('p');
-    adviceText.className = 'advice-card-text';
-    adviceText.textContent = firstConcept.advice
-      ? window.KnoweiSheets.capitalize(firstConcept.advice)
-      : 'Geen adviestekst beschikbaar.';
-    card.appendChild(adviceText);
-
-    // One combined table for the whole box — a row per concept is more
-    // scannable than repeating a full 3-column table under each concept.
-    const toolboxFields = ['inhouse_klant', 'futures', 'knowei_modules'];
-    const hasToolboxData = box.entries.some(({ concept }) => toolboxFields.some((field) => concept[field]));
-    if (hasToolboxData) {
-      const table = document.createElement('table');
-      table.className = 'advice-mini-table';
-
-      const thead = document.createElement('thead');
-      const headRow = document.createElement('tr');
-      ['Concept', ...toolboxFields.map((field) => TOOLBOX_FIELD_LABELS[field])].forEach((label) => {
-        const th = document.createElement('th');
-        th.textContent = label;
-        headRow.appendChild(th);
+    const alternatives = ALTERNATIVE_FIELDS.map((field) => concept[field]).filter(Boolean);
+    if (alternatives.length) {
+      const sub = document.createElement('p');
+      sub.className = 'advice-concept-sub';
+      sub.append('Kijk bijvoorbeeld naar: ');
+      alternatives.forEach((value, i) => {
+        if (i > 0) sub.append(' en ');
+        const link = document.createElement('a');
+        link.href = KNOWEI_URL;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = window.KnoweiSheets.capitalize(value);
+        sub.appendChild(link);
       });
-      thead.appendChild(headRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      box.entries.forEach(({ concept }) => {
-        const row = document.createElement('tr');
-        const nameTd = document.createElement('td');
-        nameTd.textContent = window.KnoweiSheets.capitalize(concept.name || concept.id);
-        row.appendChild(nameTd);
-        toolboxFields.forEach((field) => {
-          const td = document.createElement('td');
-          td.textContent = concept[field] || '—';
-          row.appendChild(td);
-        });
-        tbody.appendChild(row);
-      });
-      table.appendChild(tbody);
-      card.appendChild(table);
+      sub.append('.');
+      item.appendChild(sub);
     }
 
-    // CTA comes last on purpose — the payoff moment should lead straight
-    // into "get in touch / buy the box".
-    if (box.boxUrl) {
+    return item;
+  }
+
+  // One card per toolbox mentioned in the keywords — lists every concept
+  // that points to it, then that box's order link, so the "these concepts
+  // are also covered together in X" pitch sits right under the concepts it
+  // refers to. Concepts with no box_name yet still get a card (each on its
+  // own, via the fallback grouping in getBoxesWithConcepts) but without the
+  // footer, since there's no toolbox to link to.
+  function buildAdviceCard(box) {
+    const card = document.createElement('article');
+    card.className = 'advice-card';
+    if (box.boxName) card.classList.add('has-box');
+
+    const group = document.createElement('div');
+    group.className = 'advice-concept-group';
+    box.entries.forEach((entry) => group.appendChild(buildConceptItem(entry)));
+    card.appendChild(group);
+
+    if (box.boxName) {
+      const footer = document.createElement('div');
+      footer.className = 'advice-card-footer';
+
+      const heading = document.createElement('p');
+      heading.className = 'advice-box-heading';
+      heading.textContent = 'Deze concepten worden ook gezamenlijk behandeld in:';
+      footer.appendChild(heading);
+
+      const firstConcept = box.entries[0].concept;
+      const adviceText = document.createElement('p');
+      adviceText.className = 'advice-box-text';
+      adviceText.textContent = firstConcept.advice
+        ? window.KnoweiSheets.capitalize(firstConcept.advice)
+        : 'Geen adviestekst beschikbaar.';
+      footer.appendChild(adviceText);
+
       const cta = document.createElement('a');
-      cta.className = 'btn btn-primary advice-cta';
-      cta.href = box.boxUrl;
+      cta.className = 'btn btn-primary advice-box-cta';
+      cta.href = box.boxUrl || KNOWEI_URL;
       cta.target = '_blank';
       cta.rel = 'noopener';
-      const boxLabel = box.boxName ? window.KnoweiSheets.capitalize(box.boxName) : 'toolbox';
-      cta.textContent = `Bekijk ${boxLabel} →`;
-      card.appendChild(cta);
+      cta.textContent = window.KnoweiSheets.capitalize(box.boxName);
+      footer.appendChild(cta);
+
+      card.appendChild(footer);
     }
 
     return card;
+  }
+
+  // Shown once, after every box block — not tied to any single box, so it
+  // just points at knowei.nl for now instead of a real order flow.
+  function buildCustomToolboxBlock() {
+    const block = document.createElement('div');
+    block.className = 'advice-custom-toolbox';
+
+    const heading = document.createElement('p');
+    heading.className = 'advice-custom-heading';
+    heading.textContent = 'Wil je een toolbox op maat?';
+    block.appendChild(heading);
+
+    const cta = document.createElement('a');
+    cta.className = 'btn btn-primary advice-custom-cta';
+    cta.href = KNOWEI_URL;
+    cta.target = '_blank';
+    cta.rel = 'noopener';
+    cta.textContent = 'Neem contact op';
+    block.appendChild(cta);
+
+    return block;
   }
 
   async function renderAdviceScreen() {
@@ -723,17 +738,26 @@
         return;
       }
 
-      const complexity = computeComplexity(hubs);
-      complexityBanner.classList.add(`complexity-${complexity.modifier}`);
-      complexityValue.textContent = complexity.label;
-      complexityNote.textContent =
-        `${complexity.totalConnections} keyword-concept koppeling(en), waarvan ${complexity.sharedCount} gedeeld ` +
-        `tussen meerdere keywords (score ${complexity.score}).`;
-      complexityBanner.hidden = false;
+      if (selectedComplexity) {
+        complexityBanner.classList.add(`complexity-${selectedComplexity}`);
+        complexityValue.textContent = COMPLEXITY_LABELS[selectedComplexity];
+        complexityNote.textContent = 'Gekozen op stap 2, op basis van het verbandenpatroon dat het beste bij jouw verbanden paste.';
+        complexityBanner.hidden = false;
+      }
 
+      const sectionTitle = document.createElement('h2');
+      sectionTitle.className = 'advice-section-title';
+      sectionTitle.textContent = 'L&D Concepten';
+      adviceList.appendChild(sectionTitle);
+
+      // One card per toolbox — if the keywords point to more than one box,
+      // this naturally repeats: each box gets its own card with its own
+      // concept list, advice and order link.
       getBoxesWithConcepts(hubs).forEach((box) => {
-        adviceList.appendChild(buildBoxCard(box));
+        adviceList.appendChild(buildAdviceCard(box));
       });
+
+      adviceList.appendChild(buildCustomToolboxBlock());
       adviceList.hidden = false;
     } catch (err) {
       console.error('[KnoweiSheets] Kon advies niet opbouwen:', err);
@@ -801,6 +825,7 @@
     descriptionInput.hidden = true;
     textSetDisplay.hidden = false;
     editBtn.hidden = false;
+    updateUploadNextState();
   }
 
   function editText() {
@@ -808,6 +833,7 @@
     textSetDisplay.hidden = true;
     editBtn.hidden = true;
     descriptionInput.focus();
+    updateUploadNextState();
   }
 
   descriptionInput.addEventListener('keydown', (e) => {
@@ -874,7 +900,11 @@
 
     dropzone.classList.remove('has-file');
     dropzoneContent.innerHTML = `
-      <div class="dropzone-icon">&#8593;</div>
+      <div class="dropzone-icon">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M8 13V3M3 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
       <p class="dropzone-title">Sleep foto hierheen</p>
       <p class="dropzone-sub">of klik om te uploaden</p>
     `;
@@ -884,6 +914,7 @@
     textSetDisplay.hidden = true;
     textSetDisplay.innerHTML = '';
     editBtn.hidden = true;
+    updateUploadNextState();
 
     Array.from(keywordTableBody.querySelectorAll('tr')).forEach((row, i) => {
       if (i >= DEFAULT_KEYWORD_ROWS.length) {
@@ -902,6 +933,13 @@
 
     conceptDetail.hidden = true;
     document.querySelectorAll('.node.is-selected').forEach((n) => n.classList.remove('is-selected'));
+
+    selectedComplexity = null;
+    verbandenNextBtn.disabled = true;
+    complexityOptions.forEach((b) => {
+      b.classList.remove('is-selected');
+      b.setAttribute('aria-checked', 'false');
+    });
   }
 
   showScreen(1);

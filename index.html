@@ -37,7 +37,11 @@
           <p class="card-label kaart-photo-label">Foto van de beschrijving</p>
           <div class="dropzone dropzone-compact" id="dropzone">
             <div class="dropzone-content" id="dropzone-content">
-              <div class="dropzone-icon">&#8593;</div>
+              <div class="dropzone-icon">
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                  <path d="M8 13V3M3 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
               <p class="dropzone-title">Sleep foto hierheen</p>
               <p class="dropzone-sub">of klik om te uploaden</p>
             </div>
@@ -106,7 +110,7 @@
 
       <div class="actions-row">
         <span></span>
-        <button class="btn btn-primary" data-next="2">Volgende</button>
+        <button class="btn btn-primary" id="upload-next" data-next="2" disabled>Volgende</button>
       </div>
     </section>
 
@@ -134,6 +138,27 @@
         <p class="concept-detail-eyebrow" id="concept-detail-eyebrow"></p>
         <h3 class="concept-detail-title" id="concept-detail-title"></h3>
         <p class="concept-detail-body" id="concept-detail-body"></p>
+      </div>
+
+      <div class="complexity-picker">
+        <h2 class="complexity-picker-title">Welke afbeelding lijkt het meest op jouw verbanden?</h2>
+        <p class="complexity-picker-desc">
+          Kijk naar het patroon van verbanden hierboven en kies de afbeelding die dat patroon het beste weergeeft.
+        </p>
+        <div class="complexity-options" id="complexity-options" role="radiogroup" aria-label="Kies de afbeelding die het beste bij jouw verbanden past">
+          <button type="button" class="complexity-option" data-complexity="eenvoudig" role="radio" aria-checked="false">
+            <img src="assets/images/complexiteit/eenvoudig.png" alt="Eenvoudig: enkele bubbels met één rechte verbinding" draggable="false" />
+          </button>
+          <button type="button" class="complexity-option" data-complexity="ingewikkeld" role="radio" aria-checked="false">
+            <img src="assets/images/complexiteit/ingewikkeld.png" alt="Ingewikkeld: een paar bubbels met vertakte verbindingen" draggable="false" />
+          </button>
+          <button type="button" class="complexity-option" data-complexity="complex" role="radio" aria-checked="false">
+            <img src="assets/images/complexiteit/complex.png" alt="Complex: veel bubbels met kruisende verbindingen" draggable="false" />
+          </button>
+          <button type="button" class="complexity-option" data-complexity="chaotisch" role="radio" aria-checked="false">
+            <img src="assets/images/complexiteit/chaotisch.png" alt="Chaotisch: bubbels met een wirwar van verbindingen" draggable="false" />
+          </button>
+        </div>
       </div>
 
       <div class="devtool">
@@ -166,7 +191,7 @@
 
       <div class="actions-row">
         <button class="btn" data-prev="1">Terug</button>
-        <button class="btn btn-primary" data-next="3">Volgende</button>
+        <button class="btn btn-primary" id="verbanden-next" data-next="3" disabled>Volgende</button>
       </div>
     </section>
 
@@ -191,12 +216,6 @@
       <p class="advice-empty" id="advice-empty" hidden></p>
 
       <div class="advice-list" id="advice-list" hidden></div>
-
-      <p class="devtool-note complexity-footnote">
-        Devtool-notitie &mdash; score = koppelingen + (gedeelde concepten &times; 2). Gedeelde concepten wegen
-        zwaarder: onderlinge afhankelijkheid bepaalt complexiteit, niet alleen het aantal koppelingen. Drempels:
-        0&ndash;4 eenvoudig, 5&ndash;9 ingewikkeld, 10&ndash;15 complex, 16+ chaotisch.
-      </p>
 
       <div class="actions-row">
         <button class="btn" data-prev="2">Terug</button>

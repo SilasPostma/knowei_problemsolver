@@ -293,7 +293,10 @@ main {
   align-items: center;
   justify-content: center;
   color: var(--color-70);
-  font-size: 1rem;
+}
+
+.dropzone-icon svg {
+  display: block;
 }
 
 .dropzone-title {
@@ -655,6 +658,8 @@ table.keyword-table {
   height: 560px;
   overflow-x: auto;
   overflow-y: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .connections-canvas svg {
@@ -667,6 +672,67 @@ table.keyword-table {
 .connections-canvas svg line {
   stroke: var(--color-70);
   stroke-width: 1.5;
+}
+
+/* ---------- Complexity picker (Stage 3) ---------- */
+.complexity-picker {
+  margin-top: 2rem;
+}
+
+.complexity-picker-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 0 0 0.35rem;
+}
+
+.complexity-picker-desc {
+  font-size: 0.85rem;
+  color: var(--color-70);
+  max-width: 60ch;
+  margin: 0 0 1.25rem;
+}
+
+.complexity-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.complexity-option {
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 2px solid var(--color-50);
+  background-color: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.complexity-option img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.complexity-option:hover {
+  border-color: var(--color-70);
+}
+
+.complexity-option.is-selected {
+  border-color: var(--accent-coral);
+  box-shadow: 0 0 0 2px var(--accent-coral-tint);
+}
+
+@media (max-width: 720px) {
+  .complexity-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .node {
@@ -857,20 +923,6 @@ table.keyword-table {
   gap: 1.5rem;
 }
 
-.advice-card {
-  border: 1px solid var(--color-50);
-  border-left: 4px solid var(--accent-coral);
-  background-color: var(--color-10);
-  padding: 1.75rem;
-}
-
-.advice-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
 .advice-tag {
   display: inline-flex;
   align-items: center;
@@ -882,90 +934,109 @@ table.keyword-table {
   color: var(--color-90);
   background-color: var(--accent-blue-tint);
   border: 1px solid var(--accent-blue);
+  white-space: nowrap;
 }
 
-.advice-card-title {
-  font-size: 1.25rem;
+.advice-section-title {
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--color-90);
-  margin: 0 0 0.4rem;
+  margin: 0 0 1rem;
 }
 
-/* One box card can list several concepts — condensed to a single line each
-   (keyword tag(s) + name) rather than a full block per concept, so the list
-   stays scannable. Advice is shown once for the whole box, not per concept. */
-.advice-concepts {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.25rem;
+/* ---------- Advice card: one per toolbox (or per boxless concept) ---------- */
+.advice-card {
+  border: 1px solid var(--color-50);
+  background-color: var(--color-10);
 }
 
-.advice-concept-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
+.advice-card.has-box {
+  border-left: 4px solid var(--accent-coral);
+}
+
+.advice-concept-item {
+  padding: 1rem 1.5rem;
   border-bottom: 1px dashed var(--color-50);
 }
 
-.advice-concept-row:first-child {
-  padding-top: 0.75rem;
+.advice-concept-item:last-child {
+  border-bottom: none;
 }
 
-.advice-concept-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0.25rem;
+.advice-concept-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .advice-concept-name {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-90);
 }
 
-.advice-label {
-  margin-top: 0;
+.advice-concept-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
 }
 
-.advice-mini-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
-  margin-top: 0.5rem;
+.advice-concept-sub {
+  font-size: 0.8rem;
+  color: var(--color-70);
+  margin: 0.4rem 0 0;
 }
 
-.advice-mini-table th {
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  font-weight: 700;
+.advice-concept-sub a {
   color: var(--color-90);
-  background-color: var(--color-10);
-  border: 1px solid var(--color-50);
+  text-decoration: underline;
 }
 
-.advice-mini-table td {
-  padding: 0.5rem 0.75rem;
+.advice-concept-sub a:hover {
+  color: var(--accent-coral);
+}
+
+/* ---------- Toolbox footer inside an advice card — heading, advice, order link ---------- */
+.advice-card-footer {
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px dashed var(--color-50);
+}
+
+.advice-box-heading {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--color-90);
-  border: 1px solid var(--color-50);
-  background-color: #fff;
+  margin: 0 0 0.6rem;
 }
 
-.advice-card-text {
-  font-size: 0.95rem;
-  line-height: 1.7;
+.advice-box-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
   color: var(--color-90);
   white-space: pre-wrap;
-  margin: 0;
+  margin: 0 0 1.25rem;
 }
 
-.advice-cta {
-  margin-top: 1.25rem;
+.advice-box-cta {
   text-decoration: none;
 }
 
-.complexity-footnote {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--color-50);
+/* ---------- Custom toolbox CTA — shown once, after every box block ---------- */
+.advice-custom-toolbox {
+  text-align: center;
+  padding: 1.5rem;
+  border: 2px dashed var(--color-50);
+}
+
+.advice-custom-heading {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-90);
+  margin: 0 0 1rem;
+}
+
+.advice-custom-cta {
+  text-decoration: none;
 }
