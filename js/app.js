@@ -10,6 +10,7 @@
       el.classList.toggle('is-done', n < step);
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (step === 2) renderConceptsDebugTable();
   }
 
   document.querySelectorAll('[data-next]').forEach((btn) => {
@@ -111,6 +112,56 @@
       });
     });
     return entries;
+  }
+
+  // Same devtool table, but grouped per row instead of flattened — this is
+  // what the Keyword_Effect/LD_Concept join needs (ervaren + doen + effect
+  // per row, not just a flat keyword list).
+  function getKeywordRows() {
+    const rows = [];
+    keywordTableBody.querySelectorAll('tr').forEach((row) => {
+      const inputs = row.querySelectorAll('input');
+      const values = COLUMN_CLASSES.reduce((acc, cls, i) => {
+        acc[cls] = (inputs[i] ? inputs[i].value : '').trim();
+        return acc;
+      }, {});
+      if (values.ervaren || values.doen) rows.push(values);
+    });
+    return rows;
+  }
+
+  // ---------- Stage 2 debug table: Keyword_Effect + LD_Concept join ----------
+  async function renderConceptsDebugTable() {
+    const statusEl = document.getElementById('concepts-debug-status');
+    const tbody = document.getElementById('concepts-table-body');
+    statusEl.textContent = 'Data laden vanuit Google Sheets...';
+    tbody.innerHTML = '';
+
+    try {
+      const { keywordEffectRows, conceptMap } = await window.KnoweiSheets.loadAll();
+      const devtoolRows = getKeywordRows();
+      const concepts = window.KnoweiSheets.resolveAllConcepts(devtoolRows, keywordEffectRows, conceptMap);
+
+      statusEl.textContent = concepts.length
+        ? `${concepts.length} gekoppelde L&D concept(en) gevonden voor de huidige keywords.`
+        : 'Geen gekoppelde L&D concepten gevonden voor de huidige keywords.';
+
+      concepts.forEach((concept) => {
+        const tr = document.createElement('tr');
+        window.KnoweiSheets.CONCEPT_FIELDS.forEach((field) => {
+          const td = document.createElement('td');
+          const content = document.createElement('div');
+          content.className = 'concepts-cell-content';
+          content.textContent = concept[field] || '';
+          td.appendChild(content);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error('[KnoweiSheets] Kon sheet-data niet laden:', err);
+      statusEl.textContent = 'Fout bij laden van Google Sheets data (zie console).';
+    }
   }
 
   // ---------- Description text: type -> Enter to set -> Edit to revert ----------

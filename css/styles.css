@@ -578,6 +578,25 @@ table.keyword-table {
   margin-top: 0.75rem;
 }
 
+/* ---------- Concepts debug table (Stage 2) ---------- */
+.concepts-table th {
+  background-color: var(--color-30);
+}
+
+.concepts-table td {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--color-90);
+  max-width: 220px;
+  vertical-align: top;
+}
+
+.concepts-cell-content {
+  max-height: 5.5em;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
 /* ---------- Connections placeholder ---------- */
 .connections-placeholder {
   border: 2px dashed var(--color-50);

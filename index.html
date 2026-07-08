@@ -125,6 +125,33 @@
         <p class="connections-placeholder-label">Node-diagram &mdash; wordt in een latere fase interactief</p>
       </div>
 
+      <div class="devtool">
+        <p class="devtool-note">
+          Tijdelijke debug-weergave (Stage 2) &mdash; toont de L&amp;D concepten die worden gevonden door de
+          "ervaren"- en "doen"-keywords en het "effect" uit de devtool-tabel op stap 1 te koppelen aan de
+          Keyword_Effect en LD_Concept Google Sheets.
+        </p>
+        <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
+        <div class="keyword-table-wrap is-visible">
+          <table class="keyword-table concepts-table">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>description</th>
+                <th>box_name</th>
+                <th>box_url</th>
+                <th>advice</th>
+                <th>inhouse_klant</th>
+                <th>futures</th>
+                <th>knowei_modules</th>
+              </tr>
+            </thead>
+            <tbody id="concepts-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="actions-row">
         <button class="btn" data-prev="1">Terug</button>
         <button class="btn btn-primary" data-next="3">Volgende</button>
@@ -171,6 +198,7 @@
     </section>
   </main>
 
+  <script src="js/sheets.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
