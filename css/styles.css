@@ -19,6 +19,15 @@
   --accent-coral-tint: #f7e3df;
   --accent-tan-tint: #f1e6d8;
   --accent-green-tint: #dcf0e4;
+
+  --page-max-width: 1100px;
+  /* The per-section intro column (see `.section-intro`) puts more visual
+     weight on the right half of `main`, so the page is centered a bit left
+     of true viewport-center to compensate — applied identically to the
+     topbar so its content stays aligned with `main` below it. `max()`
+     collapses this back to 0 once the viewport is too narrow to spare it,
+     leaving the normal edge-to-edge mobile layout untouched. */
+  --page-shift: max(0px, calc(50% - var(--page-max-width) / 2 - 4.5rem));
 }
 
 * {
@@ -60,8 +69,9 @@ body {
 }
 
 .topbar-inner {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: var(--page-max-width);
+  margin-left: var(--page-shift);
+  margin-right: auto;
   display: flex;
   align-items: center;
   gap: 2rem;
@@ -123,26 +133,64 @@ body {
   color: var(--color-10);
 }
 
+.step {
+  cursor: default;
+}
+
+.step:not(.is-locked) {
+  cursor: pointer;
+}
+
+.step.is-locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ---------- Main layout ---------- */
 main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 4rem;
+  max-width: var(--page-max-width);
+  margin-left: var(--page-shift);
+  margin-right: auto;
+  padding: 0 1.5rem 4rem;
 }
 
-.screen {
-  display: none;
+/* Each section flows horizontally: a fixed-width intro column (eyebrow,
+   title, description — always visible, even locked, so the full journey is
+   visible up front) beside the section's actual content. */
+.onepage-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  padding: 3rem 0;
+  scroll-margin-top: 5.5rem;
 }
 
-.screen.is-active {
-  display: block;
+.onepage-section + .onepage-section {
+  border-top: 1px solid var(--color-50);
 }
 
-.screen-header {
-  margin-bottom: 2rem;
+.section-intro {
+  flex: 0 0 260px;
+  max-width: 260px;
+  transition: opacity 0.2s ease;
+  /* Stays in view for the length of its own section — taller sections
+     (Verbanden, Advies) would otherwise scroll the "Stap X" label away
+     while their content is still on screen. Bounded by the section's own
+     box, so it naturally scrolls away again once that section ends. */
+  position: sticky;
+  top: 5.5rem;
 }
 
-.screen-eyebrow {
+.onepage-section.is-locked .section-intro {
+  opacity: 0.55;
+}
+
+.section-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -151,18 +199,92 @@ main {
   margin: 0 0 0.4rem;
 }
 
-.screen-title {
+.section-title {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
   color: var(--color-90);
+  outline: none;
 }
 
-.screen-desc {
+.section-desc {
   font-size: 0.9rem;
   color: var(--color-70);
-  max-width: 60ch;
   margin: 0;
+}
+
+@media (max-width: 880px) {
+  .onepage-section {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .section-intro {
+    max-width: none;
+    position: static;
+  }
+}
+
+/* ---------- Locked section state ---------- */
+/* `display: flex` must stay scoped to `:not([hidden])` — an unconditional
+   `display` here would override the `[hidden]` UA rule (author styles beat
+   UA styles regardless of specificity), leaving the lock banner visible even
+   once JS sets `hidden` on it after unlocking. */
+.section-lock:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border: 2px dashed var(--color-50);
+  background-color: var(--color-30);
+  padding: 1.25rem 1.5rem;
+}
+
+.section-lock-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-70);
+  color: var(--color-70);
+}
+
+.section-lock-text {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-70);
+}
+
+/* Plays whenever `.section-content` goes from `[hidden]` (display: none) to
+   visible — animations don't run while display:none, so removing `hidden`
+   on unlock replays this from the top with no extra JS needed. */
+.section-content {
+  animation: section-reveal 0.45s ease-out;
+}
+
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ---------- Cards ---------- */
@@ -288,6 +410,11 @@ main {
 .dropzone-icon {
   width: 2rem;
   height: 2rem;
+  /* `.dropzone-content` (its parent) isn't itself a flex container, so
+     `.dropzone`'s `align-items: center` doesn't reach this — it only
+     centers `.dropzone-content` as a whole, not this fixed-width block
+     inside it. Auto margins center it directly instead. */
+  margin: 0 auto;
   border: 1px solid var(--color-70);
   display: flex;
   align-items: center;

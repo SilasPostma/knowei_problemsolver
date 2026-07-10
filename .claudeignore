@@ -1,0 +1,19 @@
+# Version control internals
+.git/
+
+# Local Claude/editor settings (machine-specific, not app code)
+.claude/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Dependencies / build output (static site today, but keep out if added later)
+node_modules/
+dist/
+build/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*

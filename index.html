@@ -12,219 +12,254 @@
     <div class="topbar-inner">
       <img src="assets/images/iconandtextlogo.png" class="logo-img" alt="Knowei" />
       <nav class="steps" id="steps">
-        <span class="step" data-step="1"><span class="step-num">1</span> Upload</span>
-        <span class="step" data-step="2"><span class="step-num">2</span> Verbanden</span>
-        <span class="step" data-step="3"><span class="step-num">3</span> Advies</span>
+        <span class="step is-active" data-step="1"><span class="step-num">1</span> Upload</span>
+        <span class="step is-locked" data-step="2"><span class="step-num">2</span> Verbanden</span>
+        <span class="step is-locked" data-step="3"><span class="step-num">3</span> Advies</span>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- Screen 1: Upload -->
-    <section class="screen" id="screen-1">
-      <div class="screen-header">
-        <p class="screen-eyebrow">Stap 1</p>
-        <h1 class="screen-title">Upload je kaart</h1>
-        <p class="screen-desc">Kies een voorbeeldkaart en beschrijf kort de situatie in eigen woorden.</p>
+    <!-- Section 1: Upload -->
+    <section class="onepage-section" id="section-1" data-section="1">
+      <div class="section-intro">
+        <p class="section-eyebrow">Stap 1</p>
+        <h1 class="section-title" tabindex="-1">Kies hier je kaart</h1>
+        <p class="section-desc">Kies een voorbeeldkaart en beschrijf kort de situatie in jouw organisatie in je eigen woorden.</p>
       </div>
 
-      <div class="upload-grid">
-        <div class="card">
-          <p class="card-label">Kaart</p>
-          <select id="kaart-select" class="kaart-select"></select>
-          <div class="kaart-preview" id="kaart-preview"></div>
+      <div class="section-body">
+        <div class="section-content" id="content-1">
+          <div class="upload-grid">
+            <div class="card">
+              <p class="card-label">Kaart</p>
+              <select id="kaart-select" class="kaart-select"></select>
+              <div class="kaart-preview" id="kaart-preview"></div>
 
-          <p class="card-label kaart-photo-label">Foto van de beschrijving</p>
-          <div class="dropzone dropzone-compact" id="dropzone">
-            <div class="dropzone-content" id="dropzone-content">
-              <div class="dropzone-icon">
-                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-                  <path d="M8 13V3M3 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+              <p class="card-label kaart-photo-label">Foto van de beschrijving</p>
+              <div class="dropzone dropzone-compact" id="dropzone">
+                <div class="dropzone-content" id="dropzone-content">
+                  <div class="dropzone-icon">
+                    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                      <path d="M8 13V3M3 8l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <p class="dropzone-title">Sleep foto hierheen</p>
+                  <p class="dropzone-sub">of klik om te uploaden</p>
+                </div>
               </div>
-              <p class="dropzone-title">Sleep foto hierheen</p>
-              <p class="dropzone-sub">of klik om te uploaden</p>
+            </div>
+
+            <div class="card">
+              <p class="card-label">Beschrijving</p>
+              <div class="field">
+                <textarea
+                  id="description-input"
+                  placeholder="Beschrijf hier kort de situatie, het gesprek of het vraagstuk... (Enter om vast te zetten, Shift+Enter voor een nieuwe regel)"
+                ></textarea>
+                <div class="text-set-display" id="text-set-display" hidden></div>
+                <div class="ai-reading" id="ai-reading" hidden>
+                  <p class="ai-reading-label"><span class="ai-reading-dot"></span>Beschrijving genereren...</p>
+                  <div class="ai-line w-full"></div>
+                  <div class="ai-line w-full" style="animation-delay:0.15s"></div>
+                  <div class="ai-line w-5-6" style="animation-delay:0.3s"></div>
+                  <div class="ai-line w-4-6" style="animation-delay:0.45s"></div>
+                </div>
+                <div class="field-actions">
+                  <button class="btn-text" id="edit-description" hidden>Bewerken</button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="card">
-          <p class="card-label">Beschrijving</p>
-          <div class="field">
-            <textarea
-              id="description-input"
-              placeholder="Beschrijf hier kort de situatie, het gesprek of het vraagstuk... (Enter om vast te zetten, Shift+Enter voor een nieuwe regel)"
-            ></textarea>
-            <div class="text-set-display" id="text-set-display" hidden></div>
-            <div class="ai-reading" id="ai-reading" hidden>
-              <p class="ai-reading-label"><span class="ai-reading-dot"></span>Beschrijving genereren...</p>
-              <div class="ai-line w-full"></div>
-              <div class="ai-line w-full" style="animation-delay:0.15s"></div>
-              <div class="ai-line w-5-6" style="animation-delay:0.3s"></div>
-              <div class="ai-line w-4-6" style="animation-delay:0.45s"></div>
-            </div>
-            <div class="field-actions">
-              <button class="btn-text" id="edit-description" hidden>Bewerken</button>
+          <div class="devtool">
+            <button class="btn-text" id="toggle-keywords">Devtool: toon keyword tabel</button>
+            <div class="keyword-table-wrap" id="keyword-table-wrap">
+              <p class="devtool-note">
+                Tijdelijke devtool &mdash; hiermee vul je zelf de keywords in die later automatisch herkend zullen
+                worden. Woorden die hier voorkomen worden gemarkeerd in de beschrijving hierboven zodra deze is
+                vastgezet.
+              </p>
+              <table class="keyword-table">
+                <thead>
+                  <tr>
+                    <th class="col-feiten">feiten<br /><small>(onderwerp, wie, wat, waar, hoeveel)</small></th>
+                    <th class="col-ervaren">ervaren / denken / voelen<br /><small>("ik vind, voel, denk")</small></th>
+                    <th class="col-doen">doen<br /><small>("ik ... werkwoord")</small></th>
+                    <th class="col-effect">effect<br /><small>(conclusie / uitkomst)</small></th>
+                  </tr>
+                </thead>
+                <tbody id="keyword-table-body">
+                  <tr>
+                    <td><input type="text" placeholder="..." value="MT overleggen" /></td>
+                    <td><input type="text" placeholder="..." value="vermoeiend" /></td>
+                    <td><input type="text" placeholder="..." value="delen meningen" /></td>
+                    <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
+                  </tr>
+                  <tr>
+                    <td><input type="text" placeholder="..." value="8 MT leden" /></td>
+                    <td><input type="text" placeholder="..." value="tijdrovend" /></td>
+                    <td><input type="text" placeholder="..." value="vooruit schuiven" /></td>
+                    <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="keyword-table-footer">
+                <button class="btn-text" id="add-row">+ Rij toevoegen</button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="devtool">
-        <button class="btn-text" id="toggle-keywords">Devtool: toon keyword tabel</button>
-        <div class="keyword-table-wrap" id="keyword-table-wrap">
-          <p class="devtool-note">
-            Tijdelijke devtool &mdash; hiermee vul je zelf de keywords in die later automatisch herkend zullen
-            worden. Woorden die hier voorkomen worden gemarkeerd in de beschrijving hierboven zodra deze is
-            vastgezet.
-          </p>
-          <table class="keyword-table">
-            <thead>
-              <tr>
-                <th class="col-feiten">feiten<br /><small>(onderwerp, wie, wat, waar, hoeveel)</small></th>
-                <th class="col-ervaren">ervaren / denken / voelen<br /><small>("ik vind, voel, denk")</small></th>
-                <th class="col-doen">doen<br /><small>("ik ... werkwoord")</small></th>
-                <th class="col-effect">effect<br /><small>(conclusie / uitkomst)</small></th>
-              </tr>
-            </thead>
-            <tbody id="keyword-table-body">
-              <tr>
-                <td><input type="text" placeholder="..." value="MT overleggen" /></td>
-                <td><input type="text" placeholder="..." value="vermoeiend" /></td>
-                <td><input type="text" placeholder="..." value="delen meningen" /></td>
-                <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
-              </tr>
-              <tr>
-                <td><input type="text" placeholder="..." value="8 MT leden" /></td>
-                <td><input type="text" placeholder="..." value="tijdrovend" /></td>
-                <td><input type="text" placeholder="..." value="vooruit schuiven" /></td>
-                <td><input type="text" placeholder="..." value="loopt uit de tijd" /></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="keyword-table-footer">
-            <button class="btn-text" id="add-row">+ Rij toevoegen</button>
+          <div class="actions-row">
+            <span></span>
+            <button class="btn btn-primary" id="upload-next" data-next="2" disabled>Volgende</button>
           </div>
         </div>
-      </div>
-
-      <div class="actions-row">
-        <span></span>
-        <button class="btn btn-primary" id="upload-next" data-next="2" disabled>Volgende</button>
       </div>
     </section>
 
-    <!-- Screen 2: Connections visualization -->
-    <section class="screen" id="screen-2">
-      <div class="screen-header">
-        <p class="screen-eyebrow">Stap 2</p>
-        <h1 class="screen-title">Verbanden visualisatie</h1>
-        <p class="screen-desc">
-          De keywords en het effect uit stap 1 worden gekoppeld aan de L&amp;D concepten. Klik op een bubbel voor
-          meer uitleg.
+    <!-- Section 2: Connections visualization -->
+    <section class="onepage-section is-locked" id="section-2" data-section="2">
+      <div class="section-intro">
+        <p class="section-eyebrow">Stap 2</p>
+        <h2 class="section-title" tabindex="-1">Kies hier de effecten en oorzaken die in jouw situatie spelen</h2>
+        <p class="section-desc">
+          Op basis van de kaart en jouw beschrijving in stap één zie je hier mogelijke relevante oorzaken en effecten rondom jouw probleem.
         </p>
       </div>
 
-      <div class="connections-canvas-wrap" id="connections-canvas-wrap">
-        <div class="connections-loading" id="connections-loading">
-          <p class="ai-reading-label"><span class="ai-reading-dot"></span>Jouw verbandenrapport bouwen...</p>
+      <div class="section-body">
+        <div class="section-lock" id="lock-2">
+          <span class="section-lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" width="16" height="16">
+              <rect x="3" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>
+          </span>
+          <p class="section-lock-text">Vul eerst stap 1 in.</p>
         </div>
-        <div class="connections-canvas" id="connections-canvas" hidden></div>
-        <p class="connections-empty" id="connections-empty" hidden></p>
-      </div>
 
-      <div class="concept-detail" id="concept-detail" hidden>
-        <button class="concept-detail-close" id="concept-detail-close" aria-label="Sluiten">&times;</button>
-        <p class="concept-detail-eyebrow" id="concept-detail-eyebrow"></p>
-        <h3 class="concept-detail-title" id="concept-detail-title"></h3>
-        <p class="concept-detail-body" id="concept-detail-body"></p>
-      </div>
+        <div class="section-content" id="content-2" hidden>
+          <div class="connections-canvas-wrap" id="connections-canvas-wrap">
+            <div class="connections-loading" id="connections-loading">
+              <p class="ai-reading-label"><span class="ai-reading-dot"></span>Jouw verbandenrapport bouwen...</p>
+            </div>
+            <div class="connections-canvas" id="connections-canvas" hidden></div>
+            <p class="connections-empty" id="connections-empty" hidden></p>
+          </div>
 
-      <div class="complexity-picker">
-        <h2 class="complexity-picker-title">Welke afbeelding lijkt het meest op jouw verbanden?</h2>
-        <p class="complexity-picker-desc">
-          Kijk naar het patroon van verbanden hierboven en kies de afbeelding die dat patroon het beste weergeeft.
-        </p>
-        <div class="complexity-options" id="complexity-options" role="radiogroup" aria-label="Kies de afbeelding die het beste bij jouw verbanden past">
-          <button type="button" class="complexity-option" data-complexity="eenvoudig" role="radio" aria-checked="false">
-            <img src="assets/images/complexiteit/eenvoudig.png" alt="Eenvoudig: enkele bubbels met één rechte verbinding" draggable="false" />
-          </button>
-          <button type="button" class="complexity-option" data-complexity="ingewikkeld" role="radio" aria-checked="false">
-            <img src="assets/images/complexiteit/ingewikkeld.png" alt="Ingewikkeld: een paar bubbels met vertakte verbindingen" draggable="false" />
-          </button>
-          <button type="button" class="complexity-option" data-complexity="complex" role="radio" aria-checked="false">
-            <img src="assets/images/complexiteit/complex.png" alt="Complex: veel bubbels met kruisende verbindingen" draggable="false" />
-          </button>
-          <button type="button" class="complexity-option" data-complexity="chaotisch" role="radio" aria-checked="false">
-            <img src="assets/images/complexiteit/chaotisch.png" alt="Chaotisch: bubbels met een wirwar van verbindingen" draggable="false" />
-          </button>
+          <div class="concept-detail" id="concept-detail" hidden>
+            <button class="concept-detail-close" id="concept-detail-close" aria-label="Sluiten">&times;</button>
+            <p class="concept-detail-eyebrow" id="concept-detail-eyebrow"></p>
+            <h3 class="concept-detail-title" id="concept-detail-title"></h3>
+            <p class="concept-detail-body" id="concept-detail-body"></p>
+          </div>
+
+          <div class="complexity-picker">
+            <h3 class="complexity-picker-title">Welke afbeelding lijkt het meest op jouw verbanden?</h3>
+            <p class="complexity-picker-desc">
+              Kijk naar het patroon van verbanden hierboven en kies de afbeelding die dat patroon het beste weergeeft.
+            </p>
+            <div class="complexity-options" id="complexity-options" role="radiogroup" aria-label="Kies de afbeelding die het beste bij jouw verbanden past">
+              <button type="button" class="complexity-option" data-complexity="eenvoudig" role="radio" aria-checked="false">
+                <img src="assets/images/complexiteit/eenvoudig.png" alt="Eenvoudig: enkele bubbels met één rechte verbinding" draggable="false" />
+              </button>
+              <button type="button" class="complexity-option" data-complexity="ingewikkeld" role="radio" aria-checked="false">
+                <img src="assets/images/complexiteit/ingewikkeld.png" alt="Ingewikkeld: een paar bubbels met vertakte verbindingen" draggable="false" />
+              </button>
+              <button type="button" class="complexity-option" data-complexity="complex" role="radio" aria-checked="false">
+                <img src="assets/images/complexiteit/complex.png" alt="Complex: veel bubbels met kruisende verbindingen" draggable="false" />
+              </button>
+              <button type="button" class="complexity-option" data-complexity="chaotisch" role="radio" aria-checked="false">
+                <img src="assets/images/complexiteit/chaotisch.png" alt="Chaotisch: bubbels met een wirwar van verbindingen" draggable="false" />
+              </button>
+            </div>
+          </div>
+
+          <div class="devtool">
+            <button class="btn-text" id="toggle-concepts-table">Devtool: toon gekoppelde data-tabel</button>
+            <div class="keyword-table-wrap" id="concepts-table-wrap">
+              <p class="devtool-note">
+                Tijdelijke debug-weergave &mdash; toont de L&amp;D concepten die worden gevonden door de "ervaren"- en
+                "doen"-keywords en het "effect" uit de devtool-tabel op stap 1 te koppelen aan de Keyword_Effect en
+                LD_Concept Google Sheets.
+              </p>
+              <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
+              <table class="keyword-table concepts-table">
+                <thead>
+                  <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>description</th>
+                    <th>box_name</th>
+                    <th>box_url</th>
+                    <th>advice</th>
+                    <th>inhouse_klant</th>
+                    <th>futures</th>
+                    <th>knowei_modules</th>
+                  </tr>
+                </thead>
+                <tbody id="concepts-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn" data-prev="1">Terug</button>
+            <button class="btn btn-primary" id="verbanden-next" data-next="3" disabled>Volgende</button>
+          </div>
         </div>
-      </div>
-
-      <div class="devtool">
-        <button class="btn-text" id="toggle-concepts-table">Devtool: toon gekoppelde data-tabel</button>
-        <div class="keyword-table-wrap" id="concepts-table-wrap">
-          <p class="devtool-note">
-            Tijdelijke debug-weergave &mdash; toont de L&amp;D concepten die worden gevonden door de "ervaren"- en
-            "doen"-keywords en het "effect" uit de devtool-tabel op stap 1 te koppelen aan de Keyword_Effect en
-            LD_Concept Google Sheets.
-          </p>
-          <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
-          <table class="keyword-table concepts-table">
-            <thead>
-              <tr>
-                <th>id</th>
-                <th>name</th>
-                <th>description</th>
-                <th>box_name</th>
-                <th>box_url</th>
-                <th>advice</th>
-                <th>inhouse_klant</th>
-                <th>futures</th>
-                <th>knowei_modules</th>
-              </tr>
-            </thead>
-            <tbody id="concepts-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="actions-row">
-        <button class="btn" data-prev="1">Terug</button>
-        <button class="btn btn-primary" id="verbanden-next" data-next="3" disabled>Volgende</button>
       </div>
     </section>
 
-    <!-- Screen 3: Advice / toolbox output -->
-    <section class="screen" id="screen-3">
-      <div class="screen-header">
-        <p class="screen-eyebrow">Stap 3</p>
-        <h1 class="screen-title">Advies &amp; toolbox</h1>
-        <p class="screen-desc">Op basis van de gevonden verbanden stellen we de volgende aanpak en toolbox voor.</p>
+    <!-- Section 3: Advice / toolbox output -->
+    <section class="onepage-section is-locked" id="section-3" data-section="3">
+      <div class="section-intro">
+        <p class="section-eyebrow">Stap 3</p>
+        <h2 class="section-title" tabindex="-1">Kies de ondersteuning die bij jouw issue past</h2>
+        <p class="section-desc">Op basis van de geselecteerde oorzaken zie je hieronder de relevante modules en toolboxen. Kies wat bij jou past: een bestaande module voor een bewezen aanpak óf een maatwerk‑toolbox waarin jijzelf jouw beste oplossing ontdekt.</p>
       </div>
 
-      <div class="complexity-banner" id="complexity-banner" hidden>
-        <p class="complexity-eyebrow">Situatie-inschatting</p>
-        <p class="complexity-value" id="complexity-value">&mdash;</p>
-        <p class="complexity-note" id="complexity-note"></p>
-      </div>
+      <div class="section-body">
+        <div class="section-lock" id="lock-3">
+          <span class="section-lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" width="16" height="16">
+              <rect x="3" y="7" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>
+          </span>
+          <p class="section-lock-text">Vul eerst stap 2 in.</p>
+        </div>
 
-      <div class="advice-loading" id="advice-loading">
-        <p class="ai-reading-label"><span class="ai-reading-dot"></span>Advies samenstellen...</p>
-      </div>
+        <div class="section-content" id="content-3" hidden>
+          <div class="complexity-banner" id="complexity-banner" hidden>
+            <p class="complexity-eyebrow">Situatie-inschatting</p>
+            <p class="complexity-value" id="complexity-value">&mdash;</p>
+            <p class="complexity-note" id="complexity-note"></p>
+          </div>
 
-      <p class="advice-empty" id="advice-empty" hidden></p>
+          <div class="advice-loading" id="advice-loading">
+            <p class="ai-reading-label"><span class="ai-reading-dot"></span>Advies samenstellen...</p>
+          </div>
 
-      <div class="advice-list" id="advice-list" hidden></div>
+          <p class="advice-empty" id="advice-empty" hidden></p>
 
-      <div class="actions-row">
-        <button class="btn" data-prev="2">Terug</button>
-        <button class="btn btn-primary" id="restart">Opnieuw beginnen</button>
+          <div class="advice-list" id="advice-list" hidden></div>
+
+          <div class="actions-row">
+            <button class="btn" data-prev="2">Terug</button>
+            <button class="btn btn-primary" id="restart">Opnieuw beginnen</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <script src="js/sheets.js"></script>
+  <script src="js/modules/sections.js"></script>
+  <script src="js/modules/upload.js"></script>
+  <script src="js/modules/connections.js"></script>
+  <script src="js/modules/advice.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
