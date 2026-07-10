@@ -148,12 +148,7 @@
             <p class="connections-empty" id="connections-empty" hidden></p>
           </div>
 
-          <div class="concept-detail" id="concept-detail" hidden>
-            <button class="concept-detail-close" id="concept-detail-close" aria-label="Sluiten">&times;</button>
-            <p class="concept-detail-eyebrow" id="concept-detail-eyebrow"></p>
-            <h3 class="concept-detail-title" id="concept-detail-title"></h3>
-            <p class="concept-detail-body" id="concept-detail-body"></p>
-          </div>
+          <p class="selection-requirement" id="selection-requirement">Selecteer minimaal één concept (de buitenste bubbels) om verder te gaan.</p>
 
           <div class="complexity-picker">
             <h3 class="complexity-picker-title">Welke afbeelding lijkt het meest op jouw verbanden?</h3>
@@ -163,15 +158,19 @@
             <div class="complexity-options" id="complexity-options" role="radiogroup" aria-label="Kies de afbeelding die het beste bij jouw verbanden past">
               <button type="button" class="complexity-option" data-complexity="eenvoudig" role="radio" aria-checked="false">
                 <img src="assets/images/complexiteit/eenvoudig.png" alt="Eenvoudig: enkele bubbels met één rechte verbinding" draggable="false" />
+                <span class="complexity-option-label">Clear</span>
               </button>
               <button type="button" class="complexity-option" data-complexity="ingewikkeld" role="radio" aria-checked="false">
                 <img src="assets/images/complexiteit/ingewikkeld.png" alt="Ingewikkeld: een paar bubbels met vertakte verbindingen" draggable="false" />
+                <span class="complexity-option-label">Complicated</span>
               </button>
               <button type="button" class="complexity-option" data-complexity="complex" role="radio" aria-checked="false">
                 <img src="assets/images/complexiteit/complex.png" alt="Complex: veel bubbels met kruisende verbindingen" draggable="false" />
+                <span class="complexity-option-label">Complex</span>
               </button>
               <button type="button" class="complexity-option" data-complexity="chaotisch" role="radio" aria-checked="false">
                 <img src="assets/images/complexiteit/chaotisch.png" alt="Chaotisch: bubbels met een wirwar van verbindingen" draggable="false" />
+                <span class="complexity-option-label">Chaos</span>
               </button>
             </div>
           </div>
@@ -186,19 +185,7 @@
               </p>
               <p class="devtool-note" id="concepts-debug-status">Nog niet geladen.</p>
               <table class="keyword-table concepts-table">
-                <thead>
-                  <tr>
-                    <th>id</th>
-                    <th>name</th>
-                    <th>description</th>
-                    <th>box_name</th>
-                    <th>box_url</th>
-                    <th>advice</th>
-                    <th>inhouse_klant</th>
-                    <th>futures</th>
-                    <th>knowei_modules</th>
-                  </tr>
-                </thead>
+                <thead id="concepts-table-head"></thead>
                 <tbody id="concepts-table-body"></tbody>
               </table>
             </div>
@@ -244,7 +231,26 @@
 
           <p class="advice-empty" id="advice-empty" hidden></p>
 
-          <div class="advice-list" id="advice-list" hidden></div>
+          <div class="advice-layout" id="advice-layout" hidden>
+            <div class="oorzaken-column">
+              <p class="oorzaken-list-title">L&amp;D Concept</p>
+              <div class="oorzaken-list" id="oorzaken-list"></div>
+            </div>
+
+            <div class="advice-side">
+              <div class="toolbox-summary">
+                <p class="toolbox-summary-title">Toolboxen</p>
+                <p class="toolbox-summary-sub">Elke praktijkvraag een andere oplossing.</p>
+                <div class="toolbox-summary-list" id="toolbox-summary-list"></div>
+              </div>
+
+              <div class="advice-note">
+                <p class="advice-note-text" id="advice-note-text"></p>
+                <p class="advice-note-question">Wil je een toolbox op maat?</p>
+                <a class="btn btn-primary advice-note-cta" id="advice-note-cta" target="_blank" rel="noopener">Neem contact op</a>
+              </div>
+            </div>
+          </div>
 
           <div class="actions-row">
             <button class="btn" data-prev="2">Terug</button>

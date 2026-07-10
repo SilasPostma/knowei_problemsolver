@@ -141,3 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Local-only reference material (mockups, source screenshots) — not used by
+# any script, kept out of the repo.
+/reference/

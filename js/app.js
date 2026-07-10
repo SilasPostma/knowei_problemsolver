@@ -9,11 +9,13 @@
   document.getElementById('upload-next').addEventListener('click', () => {
     window.KnoweiConnections.render(window.KnoweiUpload.getKeywordRows());
     window.KnoweiSections.unlock(2);
+    window.KnoweiSections.scrollToSectionIfNeeded(2);
   });
 
   document.getElementById('verbanden-next').addEventListener('click', () => {
-    window.KnoweiAdvice.render(window.KnoweiUpload.getKeywordRows(), window.KnoweiConnections.getSelectedComplexity());
+    window.KnoweiAdvice.render(window.KnoweiConnections.getSelectedConceptEntries(), window.KnoweiConnections.getSelectedComplexity());
     window.KnoweiSections.unlock(3);
+    window.KnoweiSections.scrollToSectionIfNeeded(3);
   });
 
   // "Terug" only scrolls — sections already stay unlocked once reached, so
@@ -25,6 +27,7 @@
   document.getElementById('restart').addEventListener('click', () => {
     window.KnoweiUpload.reset();
     window.KnoweiConnections.reset();
+    window.KnoweiAdvice.reset();
     window.KnoweiSections.lockFrom(2);
     window.KnoweiSections.scrollToSection(1);
   });

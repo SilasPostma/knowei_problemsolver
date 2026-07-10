@@ -32,11 +32,13 @@ window.KnoweiUpload = (function () {
     ['8 MT leden', 'tijdrovend', 'vooruit schuiven', 'loopt uit de tijd'],
   ];
 
-  // Gate stap 1's "Volgende" on all three inputs being done: a kaart chosen,
-  // a photo uploaded, and the resulting description text generated (not
-  // mid-edit).
+  // Gate stap 1's "Volgende" on a kaart chosen and the description text set
+  // (not mid-edit). A photo is optional — typing the description directly is
+  // enough to continue; a photo is only needed if the user prefers that over
+  // typing. If a photo *is* uploaded, its (mocked) OCR text overwrites
+  // whatever was typed, handled in useMockPhoto/simulateAiReading below.
   function updateUploadNextState() {
-    uploadNextBtn.disabled = !(kaartSelect.value && dropzone.classList.contains('has-file') && isTextSet());
+    uploadNextBtn.disabled = !(kaartSelect.value && isTextSet());
   }
 
   function renderKaartPreview() {

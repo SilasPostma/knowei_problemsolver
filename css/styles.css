@@ -783,10 +783,23 @@ table.keyword-table {
   position: relative;
   width: 100%;
   height: 560px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  /* The diagram is scaled to fit this box exactly (see
+     .connections-canvas-inner) instead of overflowing it, so bubbles never
+     render partially off-screen — no scrollbars needed. */
+  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Sized to the diagram's natural (unscaled) layout; renderConnectionsCanvas
+   applies a CSS transform (translate + scale) so the whole thing — bubbles,
+   labels, lines — shrinks together to fit `.connections-canvas` when the
+   natural layout would otherwise be wider than the viewport. */
+.connections-canvas-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
 }
 
 .connections-canvas svg {
@@ -828,6 +841,8 @@ table.keyword-table {
 
 .complexity-option {
   aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
   padding: 0;
   border: 2px solid var(--color-50);
   background-color: #fff;
@@ -838,13 +853,26 @@ table.keyword-table {
 
 .complexity-option img {
   display: block;
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 100%;
   object-fit: contain;
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+}
+
+.complexity-option-label {
+  display: block;
+  padding: 0.4rem 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-70);
+  border-top: 1px solid var(--color-50);
 }
 
 .complexity-option:hover {
@@ -856,10 +884,28 @@ table.keyword-table {
   box-shadow: 0 0 0 2px var(--accent-coral-tint);
 }
 
+.complexity-option.is-selected .complexity-option-label {
+  color: var(--accent-coral);
+  border-top-color: var(--accent-coral);
+}
+
 @media (max-width: 720px) {
   .complexity-options {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* ---------- Selection requirement hint (stap 2) ---------- */
+.selection-requirement {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-coral);
+}
+
+.selection-requirement.is-satisfied {
+  color: var(--color-70);
+  font-weight: 400;
 }
 
 .node {
@@ -903,6 +949,18 @@ table.keyword-table {
   z-index: 3;
 }
 
+/* The central keyword bubble is informational only (hover still works via
+   .node:hover above) — no pointer cursor and no "clickable" hover lift, so
+   it doesn't visually invite a click that does nothing. */
+.node.is-not-clickable {
+  cursor: default;
+}
+
+.node.is-not-clickable:hover {
+  scale: 1;
+  box-shadow: none;
+}
+
 .node.is-selected {
   box-shadow: 0 0 0 4px var(--color-10), 0 0 0 6px var(--color-90);
 }
@@ -918,70 +976,75 @@ table.keyword-table {
   }
 }
 
-/* ---------- Concept detail panel ---------- */
-.concept-detail {
-  position: relative;
-  margin-top: 1.5rem;
-  border: 1px solid var(--color-50);
-  background-color: var(--color-10);
-  padding: 1.5rem;
-  padding-right: 3rem;
-}
-
-.concept-detail-close {
+/* ---------- Hover tooltip: pinned to the canvas corner, connected to the
+   hovered bubble by a thin line + dot (see connections.js buildTooltip) ---------- */
+.connections-tooltip {
+  display: none;
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 1px solid var(--color-70);
-  background: transparent;
-  color: var(--color-90);
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
+  top: 1rem;
+  right: 1rem;
+  width: 240px;
+  z-index: 10;
+  border: 1px solid var(--color-50);
+  background-color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  padding: 1rem;
+  pointer-events: none;
 }
 
-.concept-detail-close:hover {
-  background-color: var(--color-90);
-  color: var(--color-10);
+.connections-tooltip.is-visible {
+  display: block;
 }
 
-.concept-detail-eyebrow {
-  font-size: 0.72rem;
+.connections-tooltip-eyebrow {
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-70);
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.3rem;
 }
 
-.concept-detail-title {
-  font-size: 1.1rem;
+.connections-tooltip-title {
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-90);
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.4rem;
 }
 
-.concept-detail-body {
-  font-size: 0.85rem;
-  line-height: 1.6;
+.connections-tooltip-body {
+  font-size: 0.78rem;
+  line-height: 1.5;
   color: var(--color-90);
   white-space: pre-wrap;
   margin: 0;
 }
 
-/* ---------- Advice/toolbox screen ---------- */
-.toolbox-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: var(--accent-tan);
+.connections-tooltip-line {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9;
 }
 
+.connections-tooltip-line.is-visible {
+  display: block;
+}
+
+.connections-tooltip-line line {
+  stroke: var(--color-90);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.connections-tooltip-line circle {
+  fill: var(--color-90);
+}
+
+/* ---------- Advice/toolbox screen ---------- */
 .complexity-banner {
   border: 1px solid var(--color-50);
   border-left: 6px solid var(--color-70);
@@ -1044,12 +1107,6 @@ table.keyword-table {
   color: var(--color-70);
 }
 
-.advice-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .advice-tag {
   display: inline-flex;
   align-items: center;
@@ -1058,112 +1115,262 @@ table.keyword-table {
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--color-90);
-  background-color: var(--accent-blue-tint);
-  border: 1px solid var(--accent-blue);
   white-space: nowrap;
 }
 
-.advice-section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
+/* Two distinguishable tag styles inside an expanded oorzaak: keyword tags
+   (why this oorzaak was surfaced) vs. bestaande-module tags (what to do
+   about it) — same accent colors already used elsewhere in the app. */
+.advice-tag-keyword {
   color: var(--color-90);
-  margin: 0 0 1rem;
+  background-color: var(--accent-blue-tint);
+  border: 1px solid var(--accent-blue);
 }
 
-/* ---------- Advice card: one per toolbox (or per boxless concept) ---------- */
-.advice-card {
+.advice-tag-module {
+  color: var(--color-90);
+  background-color: var(--accent-green-tint);
+  border: 1px solid var(--accent-green);
+}
+
+/* ---------- Advice layout: oorzaken accordion (left) + toolbox summary/note (right) ---------- */
+.advice-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .advice-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Margin (not padding, since there's no visible box around this title)
+   mirrors .toolbox-summary's 1.25rem card padding, so this title lines up
+   with "Toolboxen" next to it despite the accordion list itself having no
+   inset of its own. */
+.oorzaken-list-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 1.25rem 0 0.75rem 1.25rem;
+}
+
+.oorzaken-list {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--color-50);
   background-color: var(--color-10);
 }
 
-.advice-card.has-box {
-  border-left: 4px solid var(--accent-coral);
+.oorzaak-item {
+  border-bottom: 1px solid var(--color-50);
 }
 
-.advice-concept-item {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px dashed var(--color-50);
-}
-
-.advice-concept-item:last-child {
+.oorzaak-item:last-child {
   border-bottom: none;
 }
 
-.advice-concept-line {
+.oorzaak-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  list-style: none;
 }
 
-.advice-concept-name {
+.oorzaak-summary::-webkit-details-marker {
+  display: none;
+}
+
+.oorzaak-summary:hover {
+  background-color: var(--color-30);
+}
+
+.oorzaak-name {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-90);
 }
 
-.advice-concept-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.4rem;
-}
-
-.advice-concept-sub {
-  font-size: 0.8rem;
+.oorzaak-toggle {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--color-70);
   color: var(--color-70);
-  margin: 0.4rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
 }
 
-.advice-concept-sub a {
-  color: var(--color-90);
-  text-decoration: underline;
-}
-
-.advice-concept-sub a:hover {
-  color: var(--accent-coral);
-}
-
-/* ---------- Toolbox footer inside an advice card — heading, advice, order link ---------- */
-.advice-card-footer {
-  padding: 1.25rem 1.5rem 1.5rem;
-  border-top: 1px dashed var(--color-50);
-}
-
-.advice-box-heading {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-90);
-  margin: 0 0 0.6rem;
-}
-
-.advice-box-text {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--color-90);
-  white-space: pre-wrap;
-  margin: 0 0 1.25rem;
-}
-
-.advice-box-cta {
-  text-decoration: none;
-}
-
-/* ---------- Custom toolbox CTA — shown once, after every box block ---------- */
-.advice-custom-toolbox {
-  text-align: center;
-  padding: 1.5rem;
-  border: 2px dashed var(--color-50);
-}
-
-.advice-custom-heading {
+.oorzaak-toggle::before {
+  content: '+';
   font-size: 0.95rem;
-  font-weight: 600;
+  line-height: 1;
+}
+
+.oorzaak-item[open] .oorzaak-toggle::before {
+  content: '\2212';
+}
+
+.oorzaak-body {
+  padding: 0 1.25rem 1.25rem;
+}
+
+.oorzaak-uitleg {
+  font-size: 0.85rem;
+  line-height: 1.6;
   color: var(--color-90);
   margin: 0 0 1rem;
 }
 
-.advice-custom-cta {
+.oorzaak-tags-group + .oorzaak-tags-group {
+  margin-top: 1.5rem;
+}
+
+.oorzaak-tags-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-70);
+  margin: 0 0 0.4rem;
+}
+
+.oorzaak-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.oorzaak-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.1rem;
+}
+
+/* Same solid neutral fill as .btn-primary elsewhere in the app, so it reads
+   as "an action" rather than another tag (the tags use tinted accent
+   backgrounds with a border; this is solid and borderless). */
+.advice-row-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.9rem;
+  background-color: var(--color-70);
+  color: var(--color-10);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.advice-row-cta:hover {
+  background-color: var(--color-90);
+}
+
+/* ---------- Right column: toolbox summary + advice note ---------- */
+.advice-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.toolbox-summary {
+  border: 1px solid var(--color-50);
+  border-left: 4px solid var(--accent-coral);
+  background-color: var(--color-10);
+  padding: 1.25rem;
+}
+
+.toolbox-summary-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-90);
+  margin: 0 0 0.2rem;
+}
+
+.toolbox-summary-sub {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-70);
+  margin: 0 0 1rem;
+}
+
+.toolbox-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.toolbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background-color: var(--color-10);
+  border: 1px solid var(--color-50);
+  color: var(--color-90);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.toolbox-row:hover {
+  border-color: var(--color-90);
+  background-color: #fff;
+}
+
+.toolbox-row-pct {
+  font-size: 0.95rem;
+  font-weight: 700;
+  min-width: 2.6rem;
+}
+
+.toolbox-row-label {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.toolbox-row-arrow {
+  color: var(--accent-coral);
+  font-weight: 700;
+}
+
+.toolbox-summary-empty {
+  font-size: 0.78rem;
+  color: var(--color-70);
+  margin: 0;
+}
+
+.advice-note {
+  border: 2px dashed var(--color-50);
+  padding: 1.25rem;
+}
+
+.advice-note-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-90);
+  margin: 0 0 1rem;
+}
+
+.advice-note-question {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-90);
+  margin: 0 0 0.75rem;
+}
+
+.advice-note-cta {
+  text-decoration: none;
+  display: inline-flex;
 }

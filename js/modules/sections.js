@@ -11,12 +11,18 @@
  * nothing here is required for the page to render in a sane resting state.
  *
  * Public interface used by app.js:
- *  - init()                puts sections/steps in sync, wires the step nav
- *  - unlock(num)            reveals section `num` in place if still locked
- *                            — no scrolling, no focus change
- *  - lockFrom(num)          re-locks section `num` and everything after it
- *  - scrollToSection(num)   smooth-scrolls to a section without touching
- *                            its lock state (used by "Terug" and step nav)
+ *  - init()                     puts sections/steps in sync, wires the step nav
+ *  - unlock(num)                 reveals section `num` in place if still locked
+ *                                — no scrolling, no focus change
+ *  - lockFrom(num)               re-locks section `num` and everything after it
+ *  - scrollToSection(num)        smooth-scrolls to a section without touching
+ *                                its lock state (used by "Terug" and step nav)
+ *  - scrollToSectionIfNeeded(num) same smooth scroll, but only if the section
+ *                                isn't already substantially in view — used
+ *                                after "Volgende" so newly-revealed content
+ *                                below the fold gets a gentle nudge into
+ *                                view, without yanking the page around when
+ *                                the user can already see it.
  */
 window.KnoweiSections = (function () {
   let sections = []; // { el, num, lockEl, contentEl, locked }
@@ -65,6 +71,28 @@ window.KnoweiSections = (function () {
     if (!target) return;
     target.el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
     activateStep(num);
+  }
+
+  // A section counts as "already in view" once its heading has scrolled
+  // past the sticky top bar and its body still has meaningful room left in
+  // the viewport — matches the sticky offset sections already scroll-margin
+  // for (see `.onepage-section { scroll-margin-top }` in css/styles.css).
+  const STICKY_TOP_OFFSET = 88; // ~5.5rem, keep in sync with scroll-margin-top
+  const MIN_VISIBLE_PX = 160;
+
+  function isSubstantiallyInView(el) {
+    const rect = el.getBoundingClientRect();
+    return rect.top <= STICKY_TOP_OFFSET + 40 && rect.top > -rect.height + MIN_VISIBLE_PX;
+  }
+
+  function scrollToSectionIfNeeded(num) {
+    const target = findSection(num);
+    if (!target) return;
+    if (isSubstantiallyInView(target.el)) {
+      activateStep(num);
+      return;
+    }
+    scrollToSection(num);
   }
 
   // Purely a reveal — no scroll, no focus change. The user stays exactly
@@ -130,5 +158,6 @@ window.KnoweiSections = (function () {
     unlock,
     lockFrom,
     scrollToSection,
+    scrollToSectionIfNeeded,
   };
 })();
