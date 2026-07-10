@@ -146,6 +146,36 @@ body {
   cursor: not-allowed;
 }
 
+/* Narrow phones: the three step labels + logo don't fit at full size,
+   forcing the whole page to overflow horizontally. Shrink just enough to
+   fit rather than wrapping or hiding anything. */
+@media (max-width: 420px) {
+  .topbar-inner {
+    gap: 0.5rem;
+    padding: 0.75rem 0.6rem;
+  }
+
+  .logo-img {
+    height: 1.4rem;
+  }
+
+  .steps {
+    gap: 0.3rem;
+  }
+
+  .step {
+    gap: 0.25rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.02em;
+  }
+
+  .step .step-num {
+    width: 1.15rem;
+    height: 1.15rem;
+    font-size: 0.6rem;
+  }
+}
+
 /* ---------- Main layout ---------- */
 main {
   max-width: var(--page-max-width);
