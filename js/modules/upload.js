@@ -516,6 +516,14 @@ window.KnoweiUpload = (function () {
     uploadNextBtn.disabled = !(kaartSelect.value && isTextSet());
   }
 
+  // Warm the browser cache for every kaart image up front, so switching the
+  // dropdown never shows a blank gap while the picked image is fetched.
+  function preloadKaartImages() {
+    KAART_OPTIONS.forEach((opt) => {
+      if (opt.image) new Image().src = opt.image;
+    });
+  }
+
   function renderKaartPreview() {
     const opt = KAART_OPTIONS.find((o) => o.id === kaartSelect.value);
     kaartPreview.innerHTML = '';
@@ -716,6 +724,7 @@ window.KnoweiUpload = (function () {
       el.textContent = opt.label;
       kaartSelect.appendChild(el);
     });
+    preloadKaartImages();
 
     kaartSelect.addEventListener('change', () => {
       renderKaartPreview();
